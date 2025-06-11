@@ -91,7 +91,7 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
         <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 w-full max-w-4xl max-h-[90vh] overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b">
-            <Dialog.Title className="text-lg font-semibold">
+            <Dialog.Title className="text-lg font-semibold text-gray-900">
               MCP Server Configuration
             </Dialog.Title>
             <Dialog.Close asChild>
