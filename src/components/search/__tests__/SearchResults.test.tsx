@@ -68,7 +68,6 @@ describe('SearchResults', () => {
     
     expect(screen.getByText(/searching across your enterprise systems/i))
       .toBeInTheDocument();
-    // Check for loading spinner by data attribute since we use inline styles now
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
@@ -123,7 +122,6 @@ describe('SearchResults', () => {
   it('should display correct source icons', () => {
     render(<SearchResults results={mockAggregatedResults} isSearching={false} />);
     
-    // Check for emoji icons (they should be in the document)
     expect(screen.getByText('🎯')).toBeInTheDocument(); // Jira
     expect(screen.getByText('📚')).toBeInTheDocument(); // Confluence
   });
@@ -134,7 +132,6 @@ describe('SearchResults', () => {
     const issueBadge = screen.getByText('issue');
     const pageBadge = screen.getByText('page');
     
-    // Test inline styles instead of classes
     expect(issueBadge).toHaveStyle('background-color: #dbeafe');
     expect(issueBadge).toHaveStyle('color: #1e40af');
     expect(pageBadge).toHaveStyle('background-color: #d1fae5');
@@ -144,7 +141,6 @@ describe('SearchResults', () => {
   it('should display formatted dates', () => {
     render(<SearchResults results={mockAggregatedResults} isSearching={false} />);
     
-    // Should show "Updated" with formatted date (flexible format)
     const updatedElements = screen.getAllByText(/updated/i);
     expect(updatedElements.length).toBeGreaterThan(0);
   });
@@ -187,7 +183,6 @@ describe('SearchResults', () => {
     
     expect(screen.getByText('Minimal Result')).toBeInTheDocument();
     expect(screen.getByText('Basic content')).toBeInTheDocument();
-    // Should not crash when author, dates, or project are missing
   });
 
   it('should show error status for failed sources', () => {
@@ -212,7 +207,6 @@ describe('SearchResults', () => {
 
     render(<SearchResults results={resultsWithErrors} isSearching={false} />);
     
-    // Check that source status is displayed (we use inline styles now)
     expect(screen.getByText(/failed server \(0\)/i)).toBeInTheDocument();
     expect(screen.getByText(/timeout server \(0\)/i)).toBeInTheDocument();
   });

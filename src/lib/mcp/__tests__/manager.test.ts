@@ -12,7 +12,6 @@ describe('MCPManager', () => {
   let mockSearchResults: MCPSearchResult[];
 
   beforeEach(() => {
-    // Clear the singleton instance
     (MCPManager as { instance: MCPManager | undefined }).instance = undefined;
     
     mockClient = {
@@ -156,7 +155,6 @@ describe('MCPManager', () => {
       
       const results = await manager.search('exact match');
       
-      // Should prioritize exact title matches
       expect(results.results[0].title).toBe('exact match');
       expect(results.results[0].relevanceScore).toBeGreaterThan(
         results.results[1].relevanceScore!
@@ -165,7 +163,7 @@ describe('MCPManager', () => {
 
     it('should boost recent items', async () => {
       const recentDate = new Date().toISOString();
-      const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(); // 60 days ago
+      const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
       
       const resultsWithDates = [
         {
@@ -184,7 +182,6 @@ describe('MCPManager', () => {
       
       const results = await manager.search('test');
       
-      // Recent item should be ranked higher
       expect(results.results[0].updatedAt).toBe(recentDate);
     });
   });

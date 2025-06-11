@@ -149,7 +149,6 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
           </div>
 
           <div style={{ padding: '1.5rem' }}>
-            {/* Tab Navigation */}
             <div style={{
               display: 'flex',
               gap: '0.25rem',

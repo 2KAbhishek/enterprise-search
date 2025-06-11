@@ -104,10 +104,11 @@ MCP servers are configured via JSON in the settings modal:
 
 - Use TypeScript for all new files
 - Follow existing component patterns in `/src/components/`
-- Use Tailwind CSS for styling
+- Use theme system with inline styles for consistent theming
 - Implement proper error handling for MCP connections
 - Add unit tests for business logic
 - Add E2E tests for user workflows
+- **NEVER add comments unless absolutely necessary** - write self-documenting code with clear variable and function names
 
 ### Security Considerations
 

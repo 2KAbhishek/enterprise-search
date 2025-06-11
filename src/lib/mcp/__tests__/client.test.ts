@@ -10,7 +10,6 @@ describe('MCPClient', () => {
   let mockServer: MCPServerConfig;
 
   beforeEach(() => {
-    // Clear mocks
     jest.clearAllMocks();
     
     client = new MCPClient();
@@ -100,7 +99,6 @@ describe('MCPClient', () => {
     it('should search across enabled servers', async () => {
       client.addServer(mockServer);
       
-      // Mock the entire search method to avoid MCP client complexity in unit tests
       const mockSearch = jest.spyOn(client, 'search').mockResolvedValue([
         {
           id: 'test-1',
@@ -205,7 +203,6 @@ describe('MCPClient', () => {
       ];
 
       testCases.forEach(({ mimeType, expected }) => {
-        // Access private method for testing
         const inferType = (client as { inferTypeFromMimeType: (mimeType?: string) => string }).inferTypeFromMimeType;
         expect(inferType(mimeType)).toBe(expected);
       });
@@ -217,7 +214,6 @@ describe('MCPClient', () => {
       client.addServer(mockServer);
       client.disconnect();
       
-      // Should not throw any errors
       expect(() => client.disconnect()).not.toThrow();
     });
   });

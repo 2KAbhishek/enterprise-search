@@ -14,7 +14,6 @@ export function SearchBar({ onSearch, isSearching = false, placeholder = "Search
   const [query, setQuery] = useState('');
   const { colors } = useTheme();
 
-  // CSS animation for loading spinner
   const spinnerStyle = {
     width: '1rem',
     height: '1rem',

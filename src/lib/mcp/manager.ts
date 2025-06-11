@@ -25,7 +25,6 @@ export class MCPManager {
     const startTime = Date.now();
 
     try {
-      // The client now handles searching across all enabled servers
       const results = await Promise.race([
         this.client.search(query, {
           limit: options?.limit || 20
@@ -35,11 +34,9 @@ export class MCPManager {
         )
       ]);
 
-      // Rank results
       const rankedResults = this.rankResults(results, query);
       const totalSearchTime = Date.now() - startTime;
 
-      // Build sources summary from results
       const sources: AggregatedSearchResult['sources'] = {};
       const enabledServers = this.client.getEnabledServers();
       
@@ -61,7 +58,6 @@ export class MCPManager {
       const totalSearchTime = Date.now() - startTime;
       const enabledServers = this.client.getEnabledServers();
       
-      // Build error sources summary
       const sources: AggregatedSearchResult['sources'] = {};
       enabledServers.forEach(server => {
         sources[server.name] = {
@@ -97,7 +93,6 @@ export class MCPManager {
     const title = result.title.toLowerCase();
     const content = result.content.toLowerCase();
 
-    // Title matches are weighted more heavily
     queryTerms.forEach(term => {
       if (title.includes(term)) {
         score += title === term ? 100 : 50;
@@ -107,7 +102,6 @@ export class MCPManager {
       }
     });
 
-    // Recent items get a small boost
     if (result.updatedAt) {
       const daysSinceUpdate = (Date.now() - new Date(result.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
       if (daysSinceUpdate < 30) {

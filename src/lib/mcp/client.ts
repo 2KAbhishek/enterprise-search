@@ -55,7 +55,6 @@ export class MCPClient {
     this.servers.set(config.id, config);
     this.saveServerConfigs();
     
-    // Reconnect if the server was already connected
     if (this.clients.has(config.id)) {
       this.closeConnection(config.id);
       if (config.enabled) {
@@ -79,19 +78,14 @@ export class MCPClient {
     }
 
     try {
-      // Create appropriate transport based on server endpoint
       let transport: StdioClientTransport | SSEClientTransport;
       
       if (server.endpoint.startsWith('http')) {
-        // Use SSE transport for HTTP endpoints
         transport = new SSEClientTransport(new URL(server.endpoint));
       } else {
-        // Use stdio for local/command-line servers - requires command and args
-        // For now, we'll default to SSE for non-HTTP endpoints
         transport = new SSEClientTransport(new URL(server.endpoint));
       }
 
-      // Create client
       const client = new Client({
         name: `enterprise-search-client`,
         version: '1.0.0'
@@ -104,7 +98,6 @@ export class MCPClient {
         }
       });
 
-      // Connect to server
       await client.connect(transport);
 
       this.clients.set(serverId, client);
@@ -141,8 +134,7 @@ export class MCPClient {
       try {
         const client = this.clients.get(server.id);
         if (!client) {
-          // Try to connect if not already connected
-          const connected = await this.connect(server.id);
+            const connected = await this.connect(server.id);
           if (!connected) {
             throw new Error('Failed to connect to server');
           }
@@ -153,16 +145,13 @@ export class MCPClient {
           throw new Error('Client not available after connection');
         }
 
-        // Use the resources/list method to search for resources
         const response = await connectedClient.listResources();
         
-        // Filter resources based on query
         const filteredResources = response.resources.filter(resource => 
           resource.name.toLowerCase().includes(query.toLowerCase()) ||
           (resource.description && resource.description.toLowerCase().includes(query.toLowerCase()))
         );
 
-        // Convert to our search result format
         return this.convertResourcesToSearchResults(filteredResources, server, options?.limit);
         
       } catch (error) {
@@ -221,8 +210,7 @@ export class MCPClient {
       try {
         const client = this.clients.get(server.id);
         if (client) {
-          // Test connection by listing resources
-          await client.listResources();
+            await client.listResources();
           connected = true;
         } else {
           connected = await this.connect(server.id);
@@ -249,8 +237,6 @@ export class MCPClient {
         throw new Error(`No client found for server ${serverId}`);
       }
 
-      // The client capabilities are established during connection
-      // For now, we'll assume basic capabilities
       return {
         search: true,
         resources: true,

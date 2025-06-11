@@ -72,12 +72,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    // Check localStorage first
     const saved = localStorage.getItem('theme') as Theme;
     if (saved) {
       setTheme(saved);
     } else {
-      // Check system preference, fallback to dark
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setTheme(prefersDark ? 'dark' : 'light');
     }
@@ -90,8 +88,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const colors = theme === 'dark' ? darkColors : lightColors;
-
-  // Prevent hydration mismatch
   if (!mounted) {
     return (
       <div style={{

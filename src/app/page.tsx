@@ -18,13 +18,11 @@ export default function Home() {
   const [mcpServers, setMcpServers] = useState<MCPServerConfig[]>([]);
   const [mcpManager, setMcpManager] = useState<MCPManager | null>(null);
 
-  // Initialize MCP Manager
   useEffect(() => {
     const manager = MCPManager.getInstance();
     setMcpManager(manager);
     setMcpServers(manager.getServers());
 
-    // Cleanup on unmount
     return () => {
       manager.disconnect();
     };
@@ -59,19 +57,16 @@ export default function Home() {
   const handleSaveServers = useCallback((servers: MCPServerConfig[]) => {
     if (!mcpManager) return;
 
-    // Update each server in the manager
     const currentServers = mcpManager.getServers();
     const currentIds = new Set(currentServers.map(s => s.id));
     const newIds = new Set(servers.map(s => s.id));
 
-    // Remove deleted servers
     currentIds.forEach(id => {
       if (!newIds.has(id)) {
         mcpManager.removeServer(id);
       }
     });
 
-    // Add or update servers
     servers.forEach(server => {
       if (currentIds.has(server.id)) {
         mcpManager.updateServer(server);
@@ -120,7 +115,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Server Status */}
         {hasServers && (
           <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
             <div style={{
@@ -147,7 +141,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Search Interface */}
         <div style={{ marginBottom: '2rem' }}>
           <SearchBar 
             onSearch={handleSearch} 
@@ -160,7 +153,6 @@ export default function Home() {
           />
         </div>
 
-        {/* No Servers Warning */}
         {!hasServers && (
           <div style={{ textAlign: 'center', padding: '3rem 0' }}>
             <div style={{ maxWidth: '28rem', margin: '0 auto' }}>
@@ -210,7 +202,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Search Results */}
         {hasServers && (
           <SearchResults 
             results={searchResults} 
@@ -218,7 +209,6 @@ export default function Home() {
           />
         )}
 
-        {/* Error State */}
         {searchStatus === 'error' && (
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
             <div style={{
@@ -237,7 +227,6 @@ export default function Home() {
         )}
       </main>
 
-      {/* Settings Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

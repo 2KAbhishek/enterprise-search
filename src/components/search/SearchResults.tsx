@@ -6,7 +6,6 @@ import { AggregatedSearchResult } from '@/types/search';
 import { ExternalLinkIcon, ClockIcon, PersonIcon } from '@radix-ui/react-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 
-// Add keyframes for spin animation
 const spinKeyframes = `
   @keyframes spin {
     from {
@@ -18,7 +17,6 @@ const spinKeyframes = `
   }
 `;
 
-// Inject styles if not already present
 if (typeof document !== 'undefined' && !document.getElementById('search-results-styles')) {
   const style = document.createElement('style');
   style.id = 'search-results-styles';
@@ -76,7 +74,6 @@ export function SearchResults({ results, isSearching }: SearchResultsProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Search Summary */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -103,7 +100,6 @@ export function SearchResults({ results, isSearching }: SearchResultsProps) {
         </div>
       </div>
 
-      {/* Results List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {results.results.map((result) => (
           <SearchResultCard key={result.id} result={result} />
