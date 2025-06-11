@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Enterprise Search",
   description: "Unified search across enterprise systems using MCP servers",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
