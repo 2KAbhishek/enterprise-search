@@ -62,7 +62,12 @@ export class MCPService {
       const transport = new StdioClientTransport({
         command: config.command,
         args: config.args,
-        env: { ...process.env, ...config.env },
+        env: { 
+          ...Object.fromEntries(
+            Object.entries(process.env).filter(([, value]) => value !== undefined)
+          ) as Record<string, string>,
+          ...config.env 
+        },
       });
 
       const client = new Client({

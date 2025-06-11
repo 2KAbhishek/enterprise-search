@@ -3,10 +3,14 @@ import { ChatService } from '@/services/ChatService';
 import { validateChatRequest } from '@/middleware/validation';
 
 const router = Router();
-const chatService = new ChatService();
+let chatService: ChatService;
 
 router.post('/', validateChatRequest, async (req: Request, res: Response) => {
   try {
+    if (!chatService) {
+      chatService = new ChatService();
+    }
+    
     const { message } = req.body as { message: string };
     
     const response = await chatService.sendMessage(message);
