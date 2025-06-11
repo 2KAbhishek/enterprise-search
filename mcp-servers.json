@@ -1,0 +1,21 @@
+{
+  "servers": [
+    {
+      "name": "GitHub",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-github-token-here"
+      }
+    },
+    {
+      "name": "Jira",
+      "command": "npx", 
+      "args": ["@sooperset/mcp-atlassian"],
+      "env": {
+        "JIRA_API_TOKEN": "your-jira-token-here",
+        "JIRA_DOMAIN": "your-company.atlassian.net"
+      }
+    }
+  ]
+}
