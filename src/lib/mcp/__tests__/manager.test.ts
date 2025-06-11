@@ -13,7 +13,7 @@ describe('MCPManager', () => {
 
   beforeEach(() => {
     // Clear the singleton instance
-    (MCPManager as any).instance = undefined;
+    (MCPManager as { instance: MCPManager | undefined }).instance = undefined;
     
     mockClient = {
       search: jest.fn(),
@@ -25,7 +25,7 @@ describe('MCPManager', () => {
       connect: jest.fn(),
       getConnectionStatus: jest.fn(),
       disconnect: jest.fn()
-    } as any;
+    } as jest.Mocked<MCPClient>;
 
     (MCPClient as jest.Mock).mockImplementation(() => mockClient);
 

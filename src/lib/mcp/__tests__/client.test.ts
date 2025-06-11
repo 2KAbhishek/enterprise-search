@@ -195,7 +195,7 @@ describe('MCPClient', () => {
 
       testCases.forEach(({ mimeType, expected }) => {
         // Access private method for testing
-        const inferType = (client as any).inferTypeFromMimeType;
+        const inferType = (client as { inferTypeFromMimeType: (mimeType?: string) => string }).inferTypeFromMimeType;
         expect(inferType(mimeType)).toBe(expected);
       });
     });
