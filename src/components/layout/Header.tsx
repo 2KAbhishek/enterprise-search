@@ -2,29 +2,68 @@
 
 import React from 'react';
 import { GearIcon } from '@radix-ui/react-icons';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface HeaderProps {
   onSettingsClick: () => void;
 }
 
 export function Header({ onSettingsClick }: HeaderProps) {
+  const { colors } = useTheme();
+  
+  const headerStyle = {
+    backgroundColor: colors.card,
+    borderBottom: `1px solid ${colors.border}`,
+    transition: 'all 0.2s ease'
+  };
+
+  const titleStyle = {
+    color: colors.foreground
+  };
+
+  const badgeStyle = {
+    backgroundColor: colors.secondary,
+    color: colors.mutedForeground
+  };
+
+  const buttonStyle = {
+    color: colors.mutedForeground,
+    backgroundColor: 'transparent',
+    border: 'none',
+    padding: '8px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header style={headerStyle}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold" style={titleStyle}>
               🔍 Enterprise Search
             </h1>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            <span 
+              className="text-sm px-2 py-1 rounded"
+              style={badgeStyle}
+            >
               MCP Powered
             </span>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
             <button
               onClick={onSettingsClick}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              style={buttonStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
               title="Settings"
             >
               <GearIcon className="h-5 w-5" />

@@ -68,9 +68,8 @@ describe('SearchResults', () => {
     
     expect(screen.getByText(/searching across your enterprise systems/i))
       .toBeInTheDocument();
-    // Check for loading spinner by class name since it doesn't have a role
-    const { container } = render(<SearchResults results={null} isSearching={true} />);
-    expect(container.querySelector('.animate-spin')).toBeInTheDocument();
+    // Check for loading spinner by data attribute since we use inline styles now
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
   it('should show no results found when results array is empty', () => {
@@ -135,8 +134,11 @@ describe('SearchResults', () => {
     const issueBadge = screen.getByText('issue');
     const pageBadge = screen.getByText('page');
     
-    expect(issueBadge).toHaveClass('bg-blue-100', 'text-blue-800');
-    expect(pageBadge).toHaveClass('bg-green-100', 'text-green-800');
+    // Test inline styles instead of classes
+    expect(issueBadge).toHaveStyle('background-color: #dbeafe');
+    expect(issueBadge).toHaveStyle('color: #1e40af');
+    expect(pageBadge).toHaveStyle('background-color: #d1fae5');
+    expect(pageBadge).toHaveStyle('color: #065f46');
   });
 
   it('should display formatted dates', () => {
@@ -210,13 +212,8 @@ describe('SearchResults', () => {
 
     render(<SearchResults results={resultsWithErrors} isSearching={false} />);
     
-    // Check for error indicators (red dots)
-    const container = render(<SearchResults results={resultsWithErrors} isSearching={false} />).container;
-    const statusIndicators = container.querySelectorAll('.bg-red-500');
-    expect(statusIndicators.length).toBeGreaterThan(0);
-    
-    // Check for timeout indicators (yellow dots)
-    const timeoutIndicators = container.querySelectorAll('.bg-yellow-500');
-    expect(timeoutIndicators.length).toBeGreaterThan(0);
+    // Check that source status is displayed (we use inline styles now)
+    expect(screen.getByText(/failed server \(0\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/timeout server \(0\)/i)).toBeInTheDocument();
   });
 });

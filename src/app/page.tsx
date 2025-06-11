@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Header } from '@/components/layout/Header';
 import { SearchBar } from '@/components/search/SearchBar';
 import { SearchResults } from '@/components/search/SearchResults';
@@ -10,6 +11,7 @@ import { MCPServerConfig } from '@/types/mcp';
 import { AggregatedSearchResult, SearchStatus } from '@/types/search';
 
 export default function Home() {
+  const { colors } = useTheme();
   const [searchStatus, setSearchStatus] = useState<SearchStatus>('idle');
   const [searchResults, setSearchResults] = useState<AggregatedSearchResult | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -86,15 +88,33 @@ export default function Home() {
   const enabledServers = mcpServers.filter(s => s.enabled);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: colors.background,
+      transition: 'all 0.2s ease'
+    }}>
       <Header onSettingsClick={() => setIsSettingsOpen(true)} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+      <main style={{
+        maxWidth: '80rem',
+        margin: '0 auto',
+        padding: '2rem 1rem'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h2 style={{
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            color: colors.foreground,
+            marginBottom: '1rem'
+          }}>
             Search Across Your Enterprise
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p style={{
+            fontSize: '1.125rem',
+            color: colors.mutedForeground,
+            maxWidth: '42rem',
+            margin: '0 auto'
+          }}>
             Unified search powered by Model Context Protocol. 
             Connect to Jira, Confluence, GitHub, Slack, Bitbucket and more.
           </p>
@@ -102,11 +122,24 @@ export default function Home() {
 
         {/* Server Status */}
         {hasServers && (
-          <div className="mb-6 text-center">
-            <div className="inline-flex items-center space-x-2 text-sm text-gray-600 bg-white px-4 py-2 rounded-lg border">
-              <span className={`w-2 h-2 rounded-full ${
-                enabledServers.length > 0 ? 'bg-green-500' : 'bg-red-500'
-              }`}></span>
+          <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+              color: colors.mutedForeground,
+              backgroundColor: colors.card,
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${colors.border}`
+            }}>
+              <span style={{
+                width: '0.5rem',
+                height: '0.5rem',
+                borderRadius: '50%',
+                backgroundColor: enabledServers.length > 0 ? '#10b981' : '#ef4444'
+              }}></span>
               <span>
                 {enabledServers.length} of {mcpServers.length} servers enabled
               </span>
@@ -115,7 +148,7 @@ export default function Home() {
         )}
 
         {/* Search Interface */}
-        <div className="mb-8">
+        <div style={{ marginBottom: '2rem' }}>
           <SearchBar 
             onSearch={handleSearch} 
             isSearching={isSearching}
@@ -129,19 +162,47 @@ export default function Home() {
 
         {/* No Servers Warning */}
         {!hasServers && (
-          <div className="text-center py-12">
-            <div className="max-w-md mx-auto">
-              <div className="text-gray-400 text-6xl mb-4">⚙️</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+            <div style={{ maxWidth: '28rem', margin: '0 auto' }}>
+              <div style={{
+                color: colors.mutedForeground,
+                fontSize: '3.75rem',
+                marginBottom: '1rem'
+              }}>⚙️</div>
+              <h3 style={{
+                fontSize: '1.125rem',
+                fontWeight: '500',
+                color: colors.foreground,
+                marginBottom: '0.5rem'
+              }}>
                 No MCP Servers Configured
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p style={{
+                color: colors.mutedForeground,
+                marginBottom: '1rem'
+              }}>
                 Get started by adding your first MCP server connection. 
                 Connect to Jira, Confluence, GitHub, Slack, or any custom MCP server.
               </p>
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: colors.primary,
+                  color: colors.primaryForeground,
+                  borderRadius: '0.375rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
               >
                 Configure Servers
               </button>
@@ -159,11 +220,17 @@ export default function Home() {
 
         {/* Error State */}
         {searchStatus === 'error' && (
-          <div className="text-center py-8">
-            <div className="text-red-500 text-lg mb-2">
+          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+            <div style={{
+              color: '#ef4444',
+              fontSize: '1.125rem',
+              marginBottom: '0.5rem'
+            }}>
               Search failed
             </div>
-            <p className="text-gray-600">
+            <p style={{
+              color: colors.mutedForeground
+            }}>
               Please check your MCP server configurations and try again.
             </p>
           </div>

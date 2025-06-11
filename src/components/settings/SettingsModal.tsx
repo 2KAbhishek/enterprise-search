@@ -5,6 +5,7 @@ import { Cross2Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MCPServerConfig, MCPServerType } from '@/types/mcp';
 import { v4 as uuidv4 } from 'uuid';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModalProps) {
+  const { colors } = useTheme();
   const [configText, setConfigText] = useState('');
   const [localServers, setLocalServers] = useState<MCPServerConfig[]>([]);
   const [activeTab, setActiveTab] = useState<'json' | 'form'>('form');
@@ -88,105 +90,302 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 w-full max-w-4xl max-h-[90vh] overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b">
-            <Dialog.Title className="text-lg font-semibold text-gray-900">
+        <Dialog.Overlay style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          zIndex: 50
+        }} />
+        <Dialog.Content style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: colors.card,
+          borderRadius: '8px',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+          zIndex: 50,
+          width: '100%',
+          maxWidth: '56rem',
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1.5rem',
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <Dialog.Title style={{
+              fontSize: '1.125rem',
+              fontWeight: '600',
+              color: colors.cardForeground
+            }}>
               MCP Server Configuration
             </Dialog.Title>
             <Dialog.Close asChild>
-              <button className="p-2 hover:bg-gray-100 rounded-md">
-                <Cross2Icon className="h-4 w-4" />
+              <button style={{
+                padding: '0.5rem',
+                borderRadius: '6px',
+                color: colors.mutedForeground,
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.muted;
+                e.currentTarget.style.color = colors.foreground;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = colors.mutedForeground;
+              }}>
+                <Cross2Icon style={{ height: '1rem', width: '1rem' }} />
               </button>
             </Dialog.Close>
           </div>
 
-          <div className="p-6">
+          <div style={{ padding: '1.5rem' }}>
             {/* Tab Navigation */}
-            <div className="flex space-x-1 mb-6 border-b">
+            <div style={{
+              display: 'flex',
+              gap: '0.25rem',
+              marginBottom: '1.5rem',
+              borderBottom: `1px solid ${colors.border}`
+            }}>
               <button
                 onClick={() => setActiveTab('form')}
-                className={`px-4 py-2 text-sm font-medium rounded-t-md ${
-                  activeTab === 'form'
-                    ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  borderTopLeftRadius: '6px',
+                  borderTopRightRadius: '6px',
+                  transition: 'all 0.2s ease',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: activeTab === 'form' ? colors.secondary : 'transparent',
+                  color: activeTab === 'form' ? colors.primary : colors.mutedForeground,
+                  borderBottom: activeTab === 'form' ? `2px solid ${colors.primary}` : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'form') {
+                    e.currentTarget.style.backgroundColor = colors.muted;
+                    e.currentTarget.style.color = colors.foreground;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'form') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = colors.mutedForeground;
+                  }
+                }}
               >
                 Form Editor
               </button>
               <button
                 onClick={() => setActiveTab('json')}
-                className={`px-4 py-2 text-sm font-medium rounded-t-md ${
-                  activeTab === 'json'
-                    ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  borderTopLeftRadius: '6px',
+                  borderTopRightRadius: '6px',
+                  transition: 'all 0.2s ease',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: activeTab === 'json' ? colors.secondary : 'transparent',
+                  color: activeTab === 'json' ? colors.primary : colors.mutedForeground,
+                  borderBottom: activeTab === 'json' ? `2px solid ${colors.primary}` : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'json') {
+                    e.currentTarget.style.backgroundColor = colors.muted;
+                    e.currentTarget.style.color = colors.foreground;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'json') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = colors.mutedForeground;
+                  }
+                }}
               >
                 JSON Editor
               </button>
             </div>
 
-            <div className="max-h-96 overflow-y-auto">
+            <div style={{ maxHeight: '24rem', overflowY: 'auto' }}>
               {activeTab === 'form' ? (
-                <div className="space-y-6">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   {localServers.map((server, index) => (
-                    <div key={server.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-medium">Server {index + 1}</h3>
+                    <div key={server.id} style={{
+                      border: `1px solid ${colors.border}`,
+                      backgroundColor: colors.card,
+                      borderRadius: '8px',
+                      padding: '1rem'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '1rem'
+                      }}>
+                        <h3 style={{
+                          fontWeight: '500',
+                          color: colors.cardForeground
+                        }}>Server {index + 1}</h3>
                         <button
                           onClick={() => removeServer(index)}
-                          className="text-red-600 hover:text-red-800"
+                          style={{
+                            color: '#dc2626',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'color 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#991b1b';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '#dc2626';
+                          }}
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          <TrashIcon style={{ height: '1rem', width: '1rem' }} />
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: '1rem'
+                      }}>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label style={{
+                            display: 'block',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: colors.cardForeground,
+                            marginBottom: '0.25rem'
+                          }}>
                             Name
                           </label>
                           <input
                             type="text"
                             value={server.name}
                             onChange={(e) => updateServer(index, 'name', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              border: `1px solid ${colors.border}`,
+                              backgroundColor: colors.input,
+                              color: colors.foreground,
+                              borderRadius: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
                             placeholder="e.g., Company Jira"
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = colors.ring;
+                              e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                              e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = colors.border;
+                              e.currentTarget.style.outline = 'none';
+                            }}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label style={{
+                            display: 'block',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: colors.cardForeground,
+                            marginBottom: '0.25rem'
+                          }}>
                             Type
                           </label>
                           <select
                             value={server.type}
                             onChange={(e) => updateServer(index, 'type', e.target.value as MCPServerType)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              border: `1px solid ${colors.border}`,
+                              backgroundColor: colors.input,
+                              color: colors.foreground,
+                              borderRadius: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = colors.ring;
+                              e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                              e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = colors.border;
+                              e.currentTarget.style.outline = 'none';
+                            }}
                           >
                             {serverTypes.map(type => (
-                              <option key={type.value} value={type.value}>
+                              <option key={type.value} value={type.value} style={{
+                                backgroundColor: colors.input,
+                                color: colors.foreground
+                              }}>
                                 {type.label}
                               </option>
                             ))}
                           </select>
                         </div>
 
-                        <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <label style={{
+                            display: 'block',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: colors.cardForeground,
+                            marginBottom: '0.25rem'
+                          }}>
                             Endpoint URL
                           </label>
                           <input
                             type="url"
                             value={server.endpoint}
                             onChange={(e) => updateServer(index, 'endpoint', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              border: `1px solid ${colors.border}`,
+                              backgroundColor: colors.input,
+                              color: colors.foreground,
+                              borderRadius: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
                             placeholder="https://your-server.com/mcp"
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = colors.ring;
+                              e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                              e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = colors.border;
+                              e.currentTarget.style.outline = 'none';
+                            }}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label style={{
+                            display: 'block',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: colors.cardForeground,
+                            marginBottom: '0.25rem'
+                          }}>
                             Auth Type
                           </label>
                           <select
@@ -195,10 +394,30 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
                               ...server.auth, 
                               type: e.target.value as 'bearer' | 'token' | 'basic' | 'oauth'
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              border: `1px solid ${colors.border}`,
+                              backgroundColor: colors.input,
+                              color: colors.foreground,
+                              borderRadius: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = colors.ring;
+                              e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                              e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = colors.border;
+                              e.currentTarget.style.outline = 'none';
+                            }}
                           >
                             {authTypes.map(type => (
-                              <option key={type.value} value={type.value}>
+                              <option key={type.value} value={type.value} style={{
+                                backgroundColor: colors.input,
+                                color: colors.foreground
+                              }}>
                                 {type.label}
                               </option>
                             ))}
@@ -206,7 +425,13 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label style={{
+                            display: 'block',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: colors.cardForeground,
+                            marginBottom: '0.25rem'
+                          }}>
                             Token/Password
                           </label>
                           <input
@@ -216,20 +441,51 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
                               ...server.auth, 
                               token: e.target.value 
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              border: `1px solid ${colors.border}`,
+                              backgroundColor: colors.input,
+                              color: colors.foreground,
+                              borderRadius: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
                             placeholder="Your API token"
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = colors.ring;
+                              e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                              e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = colors.border;
+                              e.currentTarget.style.outline = 'none';
+                            }}
                           />
                         </div>
 
-                        <div className="col-span-2">
-                          <label className="flex items-center">
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
                             <input
                               type="checkbox"
                               checked={server.enabled}
                               onChange={(e) => updateServer(index, 'enabled', e.target.checked)}
-                              className="mr-2"
+                              style={{
+                                marginRight: '0.5rem',
+                                height: '1rem',
+                                width: '1rem',
+                                accentColor: colors.primary,
+                                backgroundColor: colors.input,
+                                borderRadius: '4px'
+                              }}
                             />
-                            <span className="text-sm font-medium text-gray-700">
+                            <span style={{
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                              color: colors.cardForeground
+                            }}>
                               Enable this server
                             </span>
                           </label>
@@ -240,24 +496,80 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
 
                   <button
                     onClick={addServer}
-                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
+                    style={{
+                      width: '100%',
+                      border: `2px dashed ${colors.border}`,
+                      backgroundColor: colors.card,
+                      borderRadius: '8px',
+                      padding: '1rem',
+                      color: colors.mutedForeground,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = colors.mutedForeground;
+                      e.currentTarget.style.color = colors.foreground;
+                      e.currentTarget.style.backgroundColor = colors.muted;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = colors.border;
+                      e.currentTarget.style.color = colors.mutedForeground;
+                      e.currentTarget.style.backgroundColor = colors.card;
+                    }}
                   >
-                    <PlusIcon className="h-5 w-5 mx-auto mb-2" />
+                    <PlusIcon style={{
+                      height: '1.25rem',
+                      width: '1.25rem',
+                      margin: '0 auto 0.5rem',
+                      display: 'block'
+                    }} />
                     Add MCP Server
                   </button>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: colors.cardForeground,
+                    marginBottom: '0.5rem'
+                  }}>
                     JSON Configuration
                   </label>
                   <textarea
                     value={configText}
                     onChange={(e) => setConfigText(e.target.value)}
-                    className="w-full h-80 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                    style={{
+                      width: '100%',
+                      height: '20rem',
+                      padding: '0.75rem',
+                      border: `1px solid ${colors.border}`,
+                      backgroundColor: colors.input,
+                      color: colors.foreground,
+                      borderRadius: '6px',
+                      fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                      fontSize: '0.875rem',
+                      transition: 'all 0.2s ease',
+                      resize: 'vertical'
+                    }}
                     placeholder="Enter your MCP server configuration as JSON..."
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = colors.ring;
+                      e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                      e.currentTarget.style.outlineOffset = '2px';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = colors.border;
+                      e.currentTarget.style.outline = 'none';
+                    }}
                   />
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p style={{
+                    fontSize: '0.75rem',
+                    color: colors.mutedForeground,
+                    marginTop: '0.5rem'
+                  }}>
                     Edit the JSON configuration directly. Make sure it&apos;s valid JSON.
                   </p>
                 </div>
@@ -265,15 +577,64 @@ export function SettingsModal({ isOpen, onClose, servers, onSave }: SettingsModa
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 p-6 border-t bg-gray-50">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '0.75rem',
+            padding: '1.5rem',
+            borderTop: `1px solid ${colors.border}`,
+            backgroundColor: colors.muted
+          }}>
             <Dialog.Close asChild>
-              <button className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+              <button style={{
+                padding: '0.5rem 1rem',
+                color: colors.foreground,
+                border: `1px solid ${colors.border}`,
+                backgroundColor: colors.card,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.card;
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                e.currentTarget.style.outlineOffset = '2px';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.outline = 'none';
+              }}>
                 Cancel
               </button>
             </Dialog.Close>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: colors.primary,
+                color: colors.primaryForeground,
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.outline = `2px solid ${colors.ring}`;
+                e.currentTarget.style.outlineOffset = '2px';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.outline = 'none';
+              }}
             >
               Save Configuration
             </button>

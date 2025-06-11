@@ -4,6 +4,27 @@ import React from 'react';
 import { MCPSearchResult } from '@/types/mcp';
 import { AggregatedSearchResult } from '@/types/search';
 import { ExternalLinkIcon, ClockIcon, PersonIcon } from '@radix-ui/react-icons';
+import { useTheme } from '@/contexts/ThemeContext';
+
+// Add keyframes for spin animation
+const spinKeyframes = `
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+// Inject styles if not already present
+if (typeof document !== 'undefined' && !document.getElementById('search-results-styles')) {
+  const style = document.createElement('style');
+  style.id = 'search-results-styles';
+  style.textContent = spinKeyframes;
+  document.head.appendChild(style);
+}
 
 interface SearchResultsProps {
   results: AggregatedSearchResult | null;
@@ -11,12 +32,25 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ results, isSearching }: SearchResultsProps) {
+  const { colors } = useTheme();
+
   if (isSearching) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Searching across your enterprise systems...</p>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div 
+            data-testid="loading-spinner"
+            style={{
+              width: '2rem',
+              height: '2rem',
+              border: `4px solid ${colors.primary}`,
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 1rem auto'
+            }}
+          ></div>
+          <p style={{ color: colors.mutedForeground }}>Searching across your enterprise systems...</p>
         </div>
       </div>
     );
@@ -24,36 +58,45 @@ export function SearchResults({ results, isSearching }: SearchResultsProps) {
 
   if (!results) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-500 text-lg mb-2">Enter a search query to get started</div>
-        <p className="text-gray-400">Search across Jira, Confluence, GitHub, Slack, Bitbucket and more</p>
+      <div style={{ textAlign: 'center', paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <div style={{ color: colors.mutedForeground, fontSize: '1.125rem', marginBottom: '0.5rem' }}>Enter a search query to get started</div>
+        <p style={{ color: colors.mutedForeground, opacity: 0.7 }}>Search across Jira, Confluence, GitHub, Slack, Bitbucket and more</p>
       </div>
     );
   }
 
   if (results.results.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-500 text-lg mb-2">No results found</div>
-        <p className="text-gray-400">Try adjusting your search terms or check your MCP server configurations</p>
+      <div style={{ textAlign: 'center', paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <div style={{ color: colors.mutedForeground, fontSize: '1.125rem', marginBottom: '0.5rem' }}>No results found</div>
+        <p style={{ color: colors.mutedForeground, opacity: 0.7 }}>Try adjusting your search terms or check your MCP server configurations</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Search Summary */}
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="text-sm text-gray-600">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottom: `1px solid ${colors.border}`,
+        paddingBottom: '1rem'
+      }}>
+        <div style={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
           Found {results.totalCount} results in {results.searchTime}ms
         </div>
-        <div className="flex space-x-4 text-xs text-gray-500">
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: colors.mutedForeground }}>
           {Object.entries(results.sources).map(([source, info]) => (
-            <span key={source} className="flex items-center space-x-1">
-              <span className={`w-2 h-2 rounded-full ${
-                info.status === 'success' ? 'bg-green-500' : 
-                info.status === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-              }`}></span>
+            <span key={source} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span style={{
+                width: '0.5rem',
+                height: '0.5rem',
+                borderRadius: '50%',
+                backgroundColor: info.status === 'success' ? '#10b981' : 
+                               info.status === 'error' ? '#ef4444' : '#f59e0b'
+              }}></span>
               <span>{source} ({info.count})</span>
             </span>
           ))}
@@ -61,7 +104,7 @@ export function SearchResults({ results, isSearching }: SearchResultsProps) {
       </div>
 
       {/* Results List */}
-      <div className="space-y-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {results.results.map((result) => (
           <SearchResultCard key={result.id} result={result} />
         ))}
@@ -75,6 +118,8 @@ interface SearchResultCardProps {
 }
 
 function SearchResultCard({ result }: SearchResultCardProps) {
+  const { colors } = useTheme();
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
     return new Date(dateString).toLocaleDateString();
@@ -91,24 +136,37 @@ function SearchResultCard({ result }: SearchResultCardProps) {
     return icons[source] || '📄';
   };
 
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      issue: 'bg-blue-100 text-blue-800',
-      page: 'bg-green-100 text-green-800',
-      pull_request: 'bg-purple-100 text-purple-800',
-      message: 'bg-yellow-100 text-yellow-800',
-      repository: 'bg-gray-100 text-gray-800',
+  const getTypeStyle = (type: string): React.CSSProperties => {
+    const typeStyles: Record<string, React.CSSProperties> = {
+      issue: { backgroundColor: '#dbeafe', color: '#1e40af' },
+      page: { backgroundColor: '#d1fae5', color: '#065f46' },
+      pull_request: { backgroundColor: '#e9d5ff', color: '#6b21a8' },
+      message: { backgroundColor: '#fef3c7', color: '#92400e' },
+      repository: { backgroundColor: colors.muted, color: colors.mutedForeground },
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
+    return typeStyles[type] || { backgroundColor: colors.muted, color: colors.mutedForeground };
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg">{getSourceIcon(result.source)}</span>
-          <span className="font-medium text-gray-900">{result.serverName}</span>
-          <span className={`px-2 py-1 text-xs rounded-full ${getTypeColor(result.type)}`}>
+    <div style={{
+      border: `1px solid ${colors.border}`,
+      backgroundColor: colors.card,
+      borderRadius: '0.5rem',
+      padding: '1rem',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      transition: 'box-shadow 0.2s ease',
+      cursor: 'pointer'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '1.125rem' }}>{getSourceIcon(result.source)}</span>
+          <span style={{ fontWeight: '500', color: colors.cardForeground }}>{result.serverName}</span>
+          <span style={{
+            padding: '0.25rem 0.5rem',
+            fontSize: '0.75rem',
+            borderRadius: '9999px',
+            ...getTypeStyle(result.type)
+          }}>
             {result.type}
           </span>
         </div>
@@ -116,44 +174,73 @@ function SearchResultCard({ result }: SearchResultCardProps) {
           href={result.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800"
+          style={{
+            color: colors.primary,
+            textDecoration: 'none',
+            transition: 'opacity 0.2s ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
-          <ExternalLinkIcon className="h-4 w-4" />
+          <ExternalLinkIcon style={{ height: '1rem', width: '1rem' }} />
         </a>
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+      <h3 style={{
+        fontSize: '1.125rem',
+        fontWeight: '600',
+        color: colors.cardForeground,
+        marginBottom: '0.5rem',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }}>
         {result.title}
       </h3>
 
-      <p className="text-gray-600 mb-3 line-clamp-3">
+      <p style={{
+        color: colors.mutedForeground,
+        marginBottom: '0.75rem',
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }}>
         {result.content}
       </p>
 
-      <div className="flex items-center space-x-4 text-sm text-gray-500">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.875rem', color: colors.mutedForeground }}>
         {result.author && (
-          <div className="flex items-center space-x-1">
-            <PersonIcon className="h-3 w-3" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <PersonIcon style={{ height: '0.75rem', width: '0.75rem' }} />
             <span>{result.author}</span>
           </div>
         )}
         
         {result.updatedAt && (
-          <div className="flex items-center space-x-1">
-            <ClockIcon className="h-3 w-3" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <ClockIcon style={{ height: '0.75rem', width: '0.75rem' }} />
             <span>Updated {formatDate(result.updatedAt)}</span>
           </div>
         )}
 
         {typeof result.metadata?.project === 'string' && (
-          <div className="flex items-center space-x-1">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
             <span>📁</span>
             <span>{result.metadata.project}</span>
           </div>
         )}
 
         {result.relevanceScore && result.relevanceScore > 0 && (
-          <div className="ml-auto text-xs bg-gray-100 px-2 py-1 rounded">
+          <div style={{
+            marginLeft: 'auto',
+            fontSize: '0.75rem',
+            backgroundColor: colors.muted,
+            color: colors.mutedForeground,
+            padding: '0.25rem 0.5rem',
+            borderRadius: '0.25rem'
+          }}>
             Score: {Math.round(result.relevanceScore)}
           </div>
         )}
