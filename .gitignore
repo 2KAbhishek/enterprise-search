@@ -1,2 +1,5 @@
 # Claude-specific files
 .claude/
+
+# MCP Config
+mcp-servers.json
