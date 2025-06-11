@@ -28,8 +28,8 @@ export function Header({ onSettingsClick }: HeaderProps) {
   };
 
   const buttonStyle = {
-    color: colors.mutedForeground,
-    backgroundColor: 'transparent',
+    color: colors.secondaryForeground,
+    backgroundColor: colors.secondary,
     border: 'none',
     padding: '8px',
     borderRadius: '6px',
@@ -59,10 +59,10 @@ export function Header({ onSettingsClick }: HeaderProps) {
               onClick={onSettingsClick}
               style={buttonStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.secondary;
+                e.currentTarget.style.backgroundColor = colors.muted;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.backgroundColor = colors.secondary;
               }}
               title="Settings"
             >
