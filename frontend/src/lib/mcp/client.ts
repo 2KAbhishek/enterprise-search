@@ -1,6 +1,3 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { 
   MCPServerConfig, 
   MCPSearchResult,
@@ -10,8 +7,7 @@ import {
 
 export class MCPClient {
   private servers: Map<string, MCPServerConfig> = new Map();
-  private clients: Map<string, Client> = new Map();
-  private transports: Map<string, StdioClientTransport | SSEClientTransport> = new Map();
+  private bridgeClients: Map<string, string> = new Map();
 
   constructor() {
     this.loadServerConfigs();
@@ -78,50 +74,53 @@ export class MCPClient {
     }
 
     try {
-      let transport: StdioClientTransport | SSEClientTransport;
+      const connectPayload: any = {};
       
-      if (server.endpoint.startsWith('http')) {
-        transport = new SSEClientTransport(new URL(server.endpoint));
-      } else {
-        transport = new SSEClientTransport(new URL(server.endpoint));
+      if (server.auth?.token) {
+        connectPayload.config = {
+          GITHUB_PERSONAL_ACCESS_TOKEN: server.auth.token
+        };
       }
 
-      const client = new Client({
-        name: `enterprise-search-client`,
-        version: '1.0.0'
-      }, {
-        capabilities: {
-          resources: {},
-          tools: {},
-          prompts: {},
-          experimental: {}
-        }
+      const response = await fetch(`${server.endpoint}/mcp/${server.type}/connect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(connectPayload),
       });
 
-      await client.connect(transport);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      this.clients.set(serverId, client);
-      this.transports.set(serverId, transport);
-
-      return true;
+      const result = await response.json();
+      
+      if (result.success && result.clientId) {
+        this.bridgeClients.set(serverId, result.clientId);
+        return true;
+      } else {
+        throw new Error(result.error || 'Connection failed');
+      }
     } catch (error) {
       console.error(`Failed to connect to MCP server ${serverId}:`, error);
       return false;
     }
   }
 
-  closeConnection(serverId: string): void {
-    const client = this.clients.get(serverId);
-    const transport = this.transports.get(serverId);
+  async closeConnection(serverId: string): Promise<void> {
+    const server = this.servers.get(serverId);
+    const clientId = this.bridgeClients.get(serverId);
 
-    if (client) {
-      client.close();
-      this.clients.delete(serverId);
-    }
-
-    if (transport) {
-      transport.close();
-      this.transports.delete(serverId);
+    if (server && clientId) {
+      try {
+        await fetch(`${server.endpoint}/mcp/${clientId}/disconnect`, {
+          method: 'DELETE',
+        });
+      } catch (error) {
+        console.error(`Failed to disconnect from server ${serverId}:`, error);
+      }
+      this.bridgeClients.delete(serverId);
     }
   }
 
@@ -132,27 +131,36 @@ export class MCPClient {
     const enabledServers = this.getEnabledServers();
     const searchPromises = enabledServers.map(async (server) => {
       try {
-        const client = this.clients.get(server.id);
-        if (!client) {
-            const connected = await this.connect(server.id);
+        let clientId = this.bridgeClients.get(server.id);
+        if (!clientId) {
+          const connected = await this.connect(server.id);
           if (!connected) {
             throw new Error('Failed to connect to server');
           }
+          clientId = this.bridgeClients.get(server.id);
         }
 
-        const connectedClient = this.clients.get(server.id);
-        if (!connectedClient) {
-          throw new Error('Client not available after connection');
+        if (!clientId) {
+          throw new Error('Client ID not available after connection');
         }
 
-        const response = await connectedClient.listResources();
-        
-        const filteredResources = response.resources.filter(resource => 
-          resource.name.toLowerCase().includes(query.toLowerCase()) ||
-          (resource.description && resource.description.toLowerCase().includes(query.toLowerCase()))
-        );
+        const response = await fetch(`${server.endpoint}/mcp/${clientId}/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query,
+            limit: options?.limit || 10,
+          }),
+        });
 
-        return this.convertResourcesToSearchResults(filteredResources, server, options?.limit);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return this.convertResourcesToSearchResults(result.resources || [], server, options?.limit);
         
       } catch (error) {
         console.error(`Search failed for server ${server.name}:`, error);
@@ -208,10 +216,10 @@ export class MCPClient {
       let error: string | undefined;
 
       try {
-        const client = this.clients.get(server.id);
-        if (client) {
-            await client.listResources();
-          connected = true;
+        const clientId = this.bridgeClients.get(server.id);
+        if (clientId) {
+          const response = await fetch(`${server.endpoint}/mcp/${clientId}/resources`);
+          connected = response.ok;
         } else {
           connected = await this.connect(server.id);
         }
@@ -232,15 +240,22 @@ export class MCPClient {
 
   async getCapabilities(serverId: string): Promise<MCPCapabilities> {
     try {
-      const client = this.clients.get(serverId);
-      if (!client) {
+      const clientId = this.bridgeClients.get(serverId);
+      const server = this.servers.get(serverId);
+      
+      if (!clientId || !server) {
         throw new Error(`No client found for server ${serverId}`);
       }
 
+      const [resourcesResponse, toolsResponse] = await Promise.allSettled([
+        fetch(`${server.endpoint}/mcp/${clientId}/resources`),
+        fetch(`${server.endpoint}/mcp/${clientId}/tools`)
+      ]);
+
       return {
         search: true,
-        resources: true,
-        tools: false,
+        resources: resourcesResponse.status === 'fulfilled' && resourcesResponse.value.ok,
+        tools: toolsResponse.status === 'fulfilled' && toolsResponse.value.ok,
         prompts: false
       };
     } catch (error) {
@@ -254,9 +269,10 @@ export class MCPClient {
     }
   }
 
-  disconnect(): void {
-    this.clients.forEach((client, serverId) => {
-      this.closeConnection(serverId);
-    });
+  async disconnect(): Promise<void> {
+    const disconnectPromises = Array.from(this.bridgeClients.keys()).map(serverId => 
+      this.closeConnection(serverId)
+    );
+    await Promise.all(disconnectPromises);
   }
 }

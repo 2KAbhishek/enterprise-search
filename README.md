@@ -30,18 +30,48 @@
 
 </div>
 
-enterprise-search is a web application that allows teams to search across multiple enterprise systems (Slack, Jira, Confluence, GitHub, Bitbucket) through a unified interface powered by Model Context Protocol (MCP) servers.
+enterprise-search is an intelligent enterprise assistant that allows teams to query and interact with multiple enterprise systems (Slack, Jira, Confluence, GitHub, Bitbucket) through natural language conversations powered by LLMs and Model Context Protocol (MCP) servers.
 
-## ✨ Features
+## 🏗️ Architecture
 
-- **Unified Search Interface**: Single search bar to query multiple enterprise systems
-- **MCP Server Integration**: Leverages Model Context Protocol for standardized data access
-- **Multi-Platform Support**: Slack, Jira, Confluence, GitHub, Bitbucket, and more
-- **Configurable Connections**: Easy setup of MCP servers through settings modal
-- **Real-time Results**: Fast, aggregated search results with source attribution
-- **Context-Rich Display**: Results include relevant metadata and source links
-- **Search History**: Track and revisit previous searches
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+### Backend-Heavy Design
+
+```
+Frontend (Chat UI) → Backend API → LLM Service + MCP Servers
+```
+
+- **Frontend**: Next.js chat interface for natural language queries
+- **Backend**: Express.js API handling authentication, MCP management, and LLM integration
+- **MCP Layer**: Secure connection to enterprise data sources via MCP servers
+- **LLM Integration**: OpenAI/Anthropic/Local models for intelligent responses
+
+### Directory Structure
+
+```
+enterprise-search/
+├── frontend/          # Next.js web application
+├── backend/           # Express.js API server
+├── docs/             # Documentation and assets
+├── README.md         # Project documentation
+└── CLAUDE.md         # Development guidelines
+```
+
+## ✨ MVP Features
+
+- **Natural Language Queries**: Ask questions in plain English about your enterprise data
+- **Claude LLM Integration**: Powered by Anthropic Claude for intelligent responses
+- **MCP Server Support**: Works with any MCP server (GitHub, Jira, Confluence, Slack, Bitbucket)
+- **External Configuration**: MCP servers run independently, configured via external JSON
+- **Chat Interface**: Clean, responsive chat UI for conversations
+- **Simple Backend**: Minimal Express.js API to connect chat to LLM and MCP servers
+
+### 🚧 Future Features (Post-MVP)
+
+- User authentication and sessions
+- Conversation history and persistence
+- Advanced security and rate limiting
+- Team collaboration and shared workspaces
+- Database storage for configurations
 
 ## ⚡ Setup
 
@@ -56,95 +86,147 @@ enterprise-search is a web application that allows teams to search across multip
 ```bash
 git clone https://github.com/2kabhishek/enterprise-search
 cd enterprise-search
+
+# Install backend dependencies
+cd backend
 npm install
 cp .env.example .env
 # Configure your environment variables
-npm run dev
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+
+# Start both services
+cd ../backend && npm run dev &
+cd ../frontend && npm run dev
 ```
 
 ### 🔧 Environment Setup
 
-Create a `.env` file with the following variables:
+#### Backend Configuration (`backend/.env`)
 
 ```env
-# Database
-DATABASE_URL="file:./dev.db"
+# Server
+PORT=3001
+NODE_ENV=development
 
-# MCP Server Configurations (optional defaults)
-DEFAULT_MCP_SERVERS='[
-  {
-    "name": "Jira",
-    "endpoint": "http://localhost:3001",
-    "type": "jira",
-    "enabled": true
-  },
-  {
-    "name": "Confluence", 
-    "endpoint": "http://localhost:3002",
-    "type": "confluence",
-    "enabled": true
-  }
-]'
+# LLM Service
+ANTHROPIC_API_KEY="your-anthropic-key-here"
 
-# Security
-JWT_SECRET="your-jwt-secret-here"
+# CORS
+CORS_ORIGIN="http://localhost:3000"
+```
+
+#### MCP Server Configuration (`mcp-servers.json`)
+
+```json
+{
+  "servers": [
+    {
+      "name": "GitHub",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-github-token"
+      }
+    },
+    {
+      "name": "Jira",
+      "command": "npx",
+      "args": ["@sooperset/mcp-atlassian"],
+      "env": {
+        "JIRA_API_TOKEN": "your-jira-token",
+        "JIRA_DOMAIN": "your-company.atlassian.net"
+      }
+    }
+  ]
+}
+```
+
+#### Frontend Configuration (`frontend/.env.local`)
+
+```env
+# API
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 ## 🚀 Usage
 
 ### Running the Application
 
+#### Development Mode
+
 ```bash
-# Development mode
-npm run dev
+# Start backend (Terminal 1)
+cd backend && npm run dev
 
-# Production build
-npm run build
-npm start
-
-# Run tests
-npm test
-npm run test:e2e
+# Start frontend (Terminal 2)
+cd frontend && npm run dev
 ```
 
-### Configuring MCP Servers
+#### Production Mode
 
-1. Click the **settings gear icon** in the top-right corner
-2. Add your MCP server configurations in the textarea modal:
+```bash
+# Build and start backend
+cd backend && npm run build && npm start
 
-```json
-[
-  {
-    "name": "Company Jira",
-    "endpoint": "https://your-company.atlassian.net/mcp",
-    "type": "jira",
-    "enabled": true,
-    "auth": {
-      "type": "bearer",
-      "token": "your-api-token"
-    }
-  },
-  {
-    "name": "GitHub Enterprise",
-    "endpoint": "https://github.your-company.com/mcp",
-    "type": "github", 
-    "enabled": true,
-    "auth": {
-      "type": "token",
-      "token": "ghp_your_token"
-    }
-  }
-]
+# Build and start frontend
+cd frontend && npm run build && npm start
 ```
 
-3. Save the configuration and start searching!
+#### Testing
 
-### Searching
+```bash
+# Backend tests (Jest + Supertest)
+cd backend && npm test
 
-- Type your query in the main search bar
-- Results appear in real-time from all configured MCP servers
-- Click on results to view full context and source links
-- Use filters to narrow down results by source or type
+# Frontend tests (Jest + React Testing Library)
+cd frontend && npm test
+
+# Future: End-to-end tests with Cypress (post-MVP)
+```
+
+### Using the Enterprise Assistant (MVP)
+
+1. **Configure MCP Servers**: Update `mcp-servers.json` with your credentials
+2. **Start MCP Servers**: Run MCP servers manually in separate terminals
+3. **Start the Application**: Launch backend and frontend
+4. **Chat**: Ask questions about your enterprise data
+
+#### Example Conversations
+
+```
+You: "What repositories do I have access to?"
+Assistant: I found 12 repositories you have access to:
+- enterprise-search (Private, Updated 2 hours ago)
+- web-toolkit (Public, Updated 1 day ago)
+- api-gateway (Private, Updated 3 days ago)
+...
+
+You: "Show me recent issues in the enterprise-search repo"
+Assistant: Here are the recent issues in enterprise-search:
+- #23: Add authentication system (Open, created yesterday)
+- #22: Fix dark theme toggle (Closed, updated 2 days ago)
+- #21: Implement MCP integration (Open, created 3 days ago)
+```
+
+### Manual MCP Server Setup
+
+1. **Start GitHub MCP Server**:
+
+```bash
+GITHUB_PERSONAL_ACCESS_TOKEN=your_token npx @modelcontextprotocol/server-github
+```
+
+2. **Start Jira MCP Server**:
+
+```bash
+JIRA_API_TOKEN=your_token JIRA_DOMAIN=company.atlassian.net npx @sooperset/mcp-atlassian
+```
+
+3. **Configure in mcp-servers.json**: Update the configuration file to match your running servers
 
 ## Getting Started (Development)
 
@@ -170,28 +252,31 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## 🏗️ What's Next
 
-### ✅ To-Do
+### ✅ MVP To-Do
 
 - [x] Research Model Context Protocol (MCP)
-- [x] Design application architecture  
-- [x] Choose tech stack (Next.js + TypeScript)
-- [x] Set up project structure and dependencies
-- [x] Implement MCP client using official SDK
-- [x] Build search interface with real-time results
-- [x] Create settings modal for MCP server configuration
-- [x] Add result aggregation and ranking
-- [x] Add comprehensive testing suite
-- [ ] Implement authentication and security
-- [ ] Deploy and document deployment process
+- [x] Design MVP application architecture  
+- [x] Choose tech stack (Next.js + Express.js + Claude)
+- [x] Set up project structure with frontend/backend separation
+- [x] Update documentation with MVP focus
+- [ ] Create basic backend API structure with Express.js
+- [ ] Implement Anthropic Claude LLM service integration
+- [ ] Create MCP client service for external server communication
+- [ ] Build simple chat API endpoint
+- [ ] Update frontend to simple chat interface
+- [ ] Connect frontend chat to backend APIs
+- [ ] Create external MCP server configuration file
+- [ ] Add basic unit tests for core functionality
+- [ ] Test with GitHub MCP server integration
 
-### 🎯 Planned Features
+### 🎯 Future Features (Post-MVP)
 
-- **Advanced Filtering**: Filter by date, source, content type
-- **Search Analytics**: Track popular queries and usage patterns  
-- **Saved Searches**: Bookmark and organize frequent searches
-- **Team Collaboration**: Share search results and configurations
-- **API Access**: REST API for integrating with other tools
-- **SSO Integration**: Enterprise authentication support
+- **User Authentication**: JWT-based user sessions
+- **Database Storage**: Persistent conversation history
+- **Multi-LLM Support**: OpenAI, Local Ollama integration
+- **Advanced Security**: Rate limiting, input validation
+- **Team Collaboration**: Multi-user workspaces
+- **Integrated MCP Management**: In-app server configuration
 
 ## 🧑‍💻 Behind The Code
 
@@ -208,11 +293,23 @@ enterprise-search was inspired by the need for a unified search experience acros
 
 ### 🧰 Tech Stack
 
+**MVP Stack:**
+
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Radix UI
-- **MCP Integration**: Official @modelcontextprotocol/sdk with SSE transport
-- **Testing**: Jest, React Testing Library, Playwright
-- **Development**: ESLint, Prettier, TypeScript strict mode
-- **Build**: Turbopack for fast development, Next.js optimized production builds
+- **Backend**: Express.js, TypeScript, minimal API
+- **MCP Integration**: Official @modelcontextprotocol/sdk with stdio transport
+- **LLM Service**: Anthropic Claude (primary)
+- **Configuration**: External JSON file for MCP servers
+- **Testing**: Jest, React Testing Library, Supertest
+- **Development**: ESLint, Prettier, TypeScript strict mode, Nodemon
+
+**Future Enhancements:**
+
+- User authentication and database storage
+- Multiple LLM providers (OpenAI, Local Ollama)
+- Cypress for E2E testing
+- Advanced security and rate limiting
+- Integrated MCP server management
 
 ### 🔍 MCP Resources
 

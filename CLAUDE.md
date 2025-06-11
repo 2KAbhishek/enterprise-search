@@ -4,97 +4,142 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Enterprise Search is a Next.js web application that provides unified search across multiple enterprise systems using Model Context Protocol (MCP) servers. Users can search Slack, Jira, Confluence, GitHub, Bitbucket, and other platforms through a single interface.
+Enterprise Search is an intelligent enterprise assistant MVP that enables users to query enterprise systems (GitHub, Jira, Confluence, Slack, Bitbucket) through natural language conversations. The system uses Anthropic Claude and Model Context Protocol (MCP) servers to provide intelligent responses with enterprise context.
+
+## Architecture Overview
+
+### Simple MVP Design
+```
+Frontend (Chat UI) → Backend API → Claude LLM + External MCP Servers
+```
+
+- **Frontend**: Next.js chat interface for natural language queries
+- **Backend**: Minimal Express.js API to connect chat to Claude and MCP servers
+- **MCP Layer**: External MCP servers run independently, configured via JSON file
+- **LLM Integration**: Anthropic Claude for intelligent responses
+
+### Directory Structure
+
+```
+enterprise-search/
+├── frontend/              # Next.js web application
+│   ├── src/
+│   │   ├── components/    # React components (chat, settings)
+│   │   ├── contexts/      # React contexts (theme, auth)
+│   │   ├── lib/          # Frontend utilities
+│   │   ├── app/          # Next.js App Router
+│   │   └── types/        # TypeScript definitions
+├── backend/              # Express.js API server
+│   ├── src/
+│   │   ├── controllers/  # API route handlers
+│   │   ├── services/     # Business logic (MCP, LLM)
+│   │   ├── models/       # Database models
+│   │   ├── middleware/   # Auth, validation, etc.
+│   │   └── utils/        # Backend utilities
+├── docs/                 # Documentation and assets
+├── README.md            # Project documentation
+└── CLAUDE.md           # Development guidelines
+```
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 with TypeScript, Tailwind CSS, Radix UI
-- **Backend**: Node.js with Express.js, JSON-RPC 2.0 client
-- **Database**: SQLite (development) / PostgreSQL (production)
-- **State Management**: React Query + Zustand
-- **Testing**: Jest, React Testing Library, Playwright
-- **DevOps**: ESLint, Prettier, Husky
-
-## Architecture
-
-### Core Components
-
-- **Search Interface** (`/src/components/search/`) - Main search UI
-- **MCP Manager** (`/src/lib/mcp/`) - MCP server communication
-- **Results Aggregator** (`/src/lib/aggregator/`) - Result ranking and deduplication
-- **Settings Modal** (`/src/components/settings/`) - MCP server configuration
-- **API Routes** (`/src/app/api/`) - Backend endpoints
-
-### Data Flow
-
-```
-User Query → Search API → MCP Manager → Multiple MCP Servers → Results Aggregation → UI Display
-```
-
-## Repository Structure
-
-```
-├── src/
-│   ├── components/          # React components
-│   │   ├── search/         # Search interface
-│   │   ├── settings/       # Configuration modal
-│   │   └── results/        # Result display
-│   ├── lib/                # Utilities and core logic
-│   │   ├── mcp/           # MCP client implementation
-│   │   ├── aggregator/    # Result processing
-│   │   └── db/            # Database utilities
-│   ├── app/               # Next.js App Router
-│   │   ├── api/           # Backend endpoints
-│   │   └── page.tsx       # Main search page
-│   └── types/             # TypeScript definitions
-├── tests/                 # Test files
-├── docs/                  # Documentation
-└── config files          # ESLint, Prettier, etc.
-```
+**MVP Focus:**
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Radix UI
+- **Backend**: Express.js, TypeScript, minimal API
+- **MCP Integration**: Official @modelcontextprotocol/sdk with stdio transport
+- **LLM Service**: Anthropic Claude only
+- **Configuration**: External JSON file for MCP servers
+- **Testing**: Jest, React Testing Library, Supertest
+- **Development**: ESLint, Prettier, TypeScript strict mode, Nodemon
 
 ## Development Commands
 
+### Backend
 ```bash
-npm run dev          # Start development server
-npm run build        # Production build
-npm run test         # Run unit tests
-npm run test:e2e     # Run end-to-end tests
+cd backend
+npm run dev          # Start development server with nodemon
+npm run build        # TypeScript compilation
+npm run start        # Start production server
+npm run test         # Run unit tests with Jest
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript checks
 ```
 
-## MCP Integration Notes
+### Frontend  
+```bash
+cd frontend
+npm run dev          # Start Next.js development server
+npm run build        # Production build
+npm run start        # Start production server
+npm run test         # Run unit tests
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript checks
+```
 
-### Supported MCP Servers
+## MVP Backend API Design
 
-- **Jira**: `@sooperset/mcp-atlassian` or custom implementations
-- **Confluence**: Part of Atlassian MCP server
-- **GitHub**: Community implementations
-- **Slack**: Custom MCP server implementations
-- **Bitbucket**: `@aashari/mcp-server-atlassian-bitbucket`
+### Core Services
 
-### MCP Client Implementation
+- **MCPService** (`/backend/src/services/mcp.ts`) - MCP server communication
+- **ClaudeService** (`/backend/src/services/claude.ts`) - Anthropic Claude integration
+- **ChatService** (`/backend/src/services/chat.ts`) - Chat handling and context management
 
-- Located in `/src/lib/mcp/client.ts`
-- Uses official `@modelcontextprotocol/sdk` with SSE transport
-- Handles authentication and connection management
-- Supports concurrent requests to multiple servers
-- Implements resource listing and searching capabilities
+### API Endpoints (MVP)
 
-### Configuration Format
+```
+POST /api/chat             # Send message to assistant
+GET  /api/health           # Health check
+```
 
-MCP servers are configured via JSON in the settings modal:
+### External Configuration
+
+MCP servers are configured in `mcp-servers.json` and run independently:
 
 ```json
 {
-  "name": "Server Name",
-  "endpoint": "http://localhost:3001",
-  "type": "jira|confluence|github|slack|bitbucket",
-  "enabled": true,
-  "auth": {
-    "type": "bearer|token|basic",
-    "token": "auth-token"
-  }
+  "servers": [
+    {
+      "name": "GitHub",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"], 
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "token"
+      }
+    }
+  ]
+}
+```
+
+### MCP Integration Notes
+
+#### Supported MCP Servers
+
+- **GitHub**: `@modelcontextprotocol/server-github` or `ghcr.io/github/github-mcp-server`
+- **Jira**: `@sooperset/mcp-atlassian` 
+- **Confluence**: Part of Atlassian MCP server
+- **Slack**: Custom MCP server implementations
+- **Bitbucket**: `@aashari/mcp-server-atlassian-bitbucket`
+
+#### MCP Client Implementation (MVP)
+
+- Located in `/backend/src/services/mcp.ts`
+- Uses official `@modelcontextprotocol/sdk` with stdio transport
+- Connects to externally running MCP servers via stdio
+- Reads configuration from external `mcp-servers.json` file
+- Supports resource access and tool execution
+
+#### MCP Server Configuration (MVP)
+
+External JSON file configuration:
+
+```typescript
+interface MCPServerConfig {
+  name: string;
+  command: string;
+  args: string[];
+  env: {
+    [key: string]: string;
+  };
 }
 ```
 
@@ -110,37 +155,38 @@ MCP servers are configured via JSON in the settings modal:
 - Add E2E tests for user workflows
 - **NEVER add comments unless absolutely necessary** - write self-documenting code with clear variable and function names
 
-### Security Considerations
+### Security Considerations (MVP)
 
-- Never log or expose authentication tokens
-- Validate all MCP server configurations
-- Sanitize search queries and results
-- Implement proper CORS policies
-- Use environment variables for sensitive data
+- **External credentials**: MCP server credentials managed in external JSON file (user responsibility)
+- **Basic CORS protection**: Restrict frontend origins in development
+- **Environment variables**: Use .env for Claude API key
+- **Input validation**: Basic sanitization of user inputs and LLM responses
+- **No authentication**: MVP runs without user sessions (single user)
 
-### Testing Strategy
+### Testing Strategy (MVP)
 
-- **Unit Tests**: Core logic, utilities, MCP client
-- **Integration Tests**: API routes, database operations
-- **E2E Tests**: Search workflows, settings configuration
-- **Mock MCP Servers**: For testing without external dependencies
+- **Unit Tests**: Core logic, utilities, MCP client, Claude service
+- **Integration Tests**: API routes, chat endpoints
+- **Mock Services**: Mock Claude API and MCP servers for testing
+- **Future**: Cypress E2E tests (post-MVP)
 
-## Deployment Notes
+## MVP Development Focus
 
-### Environment Variables
+### What's Included
+- Simple chat interface
+- Claude LLM integration
+- External MCP server communication
+- Basic error handling
+- Unit and integration tests
 
-```env
-DATABASE_URL="postgresql://..."
-JWT_SECRET="..."
-DEFAULT_MCP_SERVERS='[...]'
-NEXTAUTH_URL="https://..."
-```
-
-### Docker Support
-
-- Dockerfile for containerized deployment
-- Docker Compose for local development with MCP servers
-- Health checks for MCP server connectivity
+### What's NOT Included (Future)
+- User authentication
+- Database storage
+- Advanced security
+- Rate limiting
+- Session management
+- Advanced error handling
+- Docker deployment
 
 ## Contributing
 
