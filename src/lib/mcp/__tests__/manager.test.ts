@@ -133,6 +133,11 @@ describe('MCPManager', () => {
   });
 
   describe('Result Ranking', () => {
+    beforeEach(() => {
+      mockClient.getEnabledServers.mockReturnValue([mockServer]);
+      mockClient.search.mockResolvedValue(mockSearchResults);
+    });
+
     it('should rank results by relevance', async () => {
       const resultsWithDifferentRelevance = [
         {
