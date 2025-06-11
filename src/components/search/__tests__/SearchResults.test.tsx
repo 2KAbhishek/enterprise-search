@@ -69,7 +69,8 @@ describe('SearchResults', () => {
     expect(screen.getByText(/searching across your enterprise systems/i))
       .toBeInTheDocument();
     // Check for loading spinner by class name since it doesn't have a role
-    expect(screen.container.querySelector('.animate-spin')).toBeInTheDocument();
+    const { container } = render(<SearchResults results={null} isSearching={true} />);
+    expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
   it('should show no results found when results array is empty', () => {
