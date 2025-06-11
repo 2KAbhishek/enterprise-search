@@ -70,7 +70,7 @@ Send a message to the enterprise assistant
 npm install
 
 # Copy environment template
-cp .env.example .env
+cp .env-sample .env
 
 # Configure your environment variables
 # Edit .env with your Anthropic API key

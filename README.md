@@ -90,7 +90,7 @@ cd enterprise-search
 # Install backend dependencies
 cd backend
 npm install
-cp .env.example .env
+cp .env-sample .env
 # Configure your environment variables
 
 # Install frontend dependencies
