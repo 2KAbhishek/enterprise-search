@@ -1,237 +1,107 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Header } from '@/components/layout/Header';
-import { SearchBar } from '@/components/search/SearchBar';
-import { SearchResults } from '@/components/search/SearchResults';
+import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SettingsModal } from '@/components/settings/SettingsModal';
-import { MCPManager } from '@/lib/mcp/manager';
-import { MCPServerConfig } from '@/types/mcp';
-import { AggregatedSearchResult, SearchStatus } from '@/types/search';
+import { apiClient } from '@/lib/api';
 
 export default function Home() {
   const { colors } = useTheme();
-  const [searchStatus, setSearchStatus] = useState<SearchStatus>('idle');
-  const [searchResults, setSearchResults] = useState<AggregatedSearchResult | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [mcpServers, setMcpServers] = useState<MCPServerConfig[]>([]);
-  const [mcpManager, setMcpManager] = useState<MCPManager | null>(null);
+  const [isBackendHealthy, setIsBackendHealthy] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const manager = MCPManager.getInstance();
-    setMcpManager(manager);
-    setMcpServers(manager.getServers());
-
-    return () => {
-      manager.disconnect();
+    const checkBackendHealth = async () => {
+      try {
+        await apiClient.checkHealth();
+        setIsBackendHealthy(true);
+      } catch (error) {
+        console.error('Backend health check failed:', error);
+        setIsBackendHealthy(false);
+      }
     };
+
+    checkBackendHealth();
   }, []);
-
-  const handleSearch = useCallback(async (query: string) => {
-    if (!mcpManager) return;
-
-    setSearchStatus('searching');
-    setSearchResults(null);
-
-    try {
-      const results = await mcpManager.search(query, {
-        limit: 20,
-        timeout: 10000
-      });
-      
-      setSearchResults(results);
-      setSearchStatus('completed');
-    } catch (error) {
-      console.error('Search failed:', error);
-      setSearchStatus('error');
-      setSearchResults({
-        results: [],
-        totalCount: 0,
-        searchTime: 0,
-        sources: {}
-      });
-    }
-  }, [mcpManager]);
-
-  const handleSaveServers = useCallback((servers: MCPServerConfig[]) => {
-    if (!mcpManager) return;
-
-    const currentServers = mcpManager.getServers();
-    const currentIds = new Set(currentServers.map(s => s.id));
-    const newIds = new Set(servers.map(s => s.id));
-
-    currentIds.forEach(id => {
-      if (!newIds.has(id)) {
-        mcpManager.removeServer(id);
-      }
-    });
-
-    servers.forEach(server => {
-      if (currentIds.has(server.id)) {
-        mcpManager.updateServer(server);
-      } else {
-        mcpManager.addServer(server);
-      }
-    });
-
-    setMcpServers(servers);
-  }, [mcpManager]);
-
-  const isSearching = searchStatus === 'searching';
-  const hasServers = mcpServers.length > 0;
-  const enabledServers = mcpServers.filter(s => s.enabled);
 
   return (
     <div style={{
       minHeight: '100vh',
       backgroundColor: colors.background,
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
       <Header onSettingsClick={() => setIsSettingsOpen(true)} />
       
       <main style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         maxWidth: '80rem',
+        width: '100%',
         margin: '0 auto',
-        padding: '2rem 1rem'
+        padding: '0 1rem'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '2rem 0 1rem',
+          borderBottom: `1px solid ${colors.border}`
+        }}>
           <h2 style={{
             fontSize: '1.875rem',
             fontWeight: 'bold',
             color: colors.foreground,
-            marginBottom: '1rem'
+            marginBottom: '0.5rem'
           }}>
-            Search Across Your Enterprise
+            Enterprise Assistant
           </h2>
           <p style={{
-            fontSize: '1.125rem',
-            color: colors.mutedForeground,
-            maxWidth: '42rem',
-            margin: '0 auto'
+            fontSize: '1rem',
+            color: colors.mutedForeground
           }}>
-            Unified search powered by Model Context Protocol. 
-            Connect to Jira, Confluence, GitHub, Slack, Bitbucket and more.
+            AI-powered chat interface connected to your enterprise systems
           </p>
-        </div>
-
-        {hasServers && (
-          <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.875rem',
-              color: colors.mutedForeground,
-              backgroundColor: colors.card,
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              border: `1px solid ${colors.border}`
-            }}>
-              <span style={{
-                width: '0.5rem',
-                height: '0.5rem',
-                borderRadius: '50%',
-                backgroundColor: enabledServers.length > 0 ? '#10b981' : '#ef4444'
-              }}></span>
-              <span>
-                {enabledServers.length} of {mcpServers.length} servers enabled
-              </span>
-            </div>
-          </div>
-        )}
-
-        <div style={{ marginBottom: '2rem' }}>
-          <SearchBar 
-            onSearch={handleSearch} 
-            isSearching={isSearching}
-            placeholder={
-              enabledServers.length > 0 
-                ? `Search across ${enabledServers.map(s => s.name).join(', ')}...`
-                : "Configure MCP servers to start searching..."
-            }
-          />
-        </div>
-
-        {!hasServers && (
-          <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-            <div style={{ maxWidth: '28rem', margin: '0 auto' }}>
+          
+          {isBackendHealthy !== null && (
+            <div style={{ marginTop: '1rem' }}>
               <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.875rem',
                 color: colors.mutedForeground,
-                fontSize: '3.75rem',
-                marginBottom: '1rem'
-              }}>⚙️</div>
-              <h3 style={{
-                fontSize: '1.125rem',
-                fontWeight: '500',
-                color: colors.foreground,
-                marginBottom: '0.5rem'
+                backgroundColor: colors.card,
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: `1px solid ${colors.border}`
               }}>
-                No MCP Servers Configured
-              </h3>
-              <p style={{
-                color: colors.mutedForeground,
-                marginBottom: '1rem'
-              }}>
-                Get started by adding your first MCP server connection. 
-                Connect to Jira, Confluence, GitHub, Slack, or any custom MCP server.
-              </p>
-              <button
-                onClick={() => setIsSettingsOpen(true)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: colors.primary,
-                  color: colors.primaryForeground,
-                  borderRadius: '0.375rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.9';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                }}
-              >
-                Configure Servers
-              </button>
+                <span style={{
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  borderRadius: '50%',
+                  backgroundColor: isBackendHealthy ? '#10b981' : '#ef4444'
+                }}></span>
+                <span>
+                  Backend {isBackendHealthy ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {hasServers && (
-          <SearchResults 
-            results={searchResults} 
-            isSearching={isSearching}
-          />
-        )}
-
-        {searchStatus === 'error' && (
-          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <div style={{
-              color: '#ef4444',
-              fontSize: '1.125rem',
-              marginBottom: '0.5rem'
-            }}>
-              Search failed
-            </div>
-            <p style={{
-              color: colors.mutedForeground
-            }}>
-              Please check your MCP server configurations and try again.
-            </p>
-          </div>
-        )}
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <ChatInterface />
+        </div>
       </main>
 
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-        servers={mcpServers}
-        onSave={handleSaveServers}
+        servers={[]}
+        onSave={() => {}}
       />
     </div>
   );
