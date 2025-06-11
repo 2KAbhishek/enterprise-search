@@ -18,6 +18,7 @@ Enterprise Search is a Next.js web application that provides unified search acro
 ## Architecture
 
 ### Core Components
+
 - **Search Interface** (`/src/components/search/`) - Main search UI
 - **MCP Manager** (`/src/lib/mcp/`) - MCP server communication
 - **Results Aggregator** (`/src/lib/aggregator/`) - Result ranking and deduplication
@@ -25,6 +26,7 @@ Enterprise Search is a Next.js web application that provides unified search acro
 - **API Routes** (`/src/app/api/`) - Backend endpoints
 
 ### Data Flow
+
 ```
 User Query → Search API → MCP Manager → Multiple MCP Servers → Results Aggregation → UI Display
 ```
@@ -64,6 +66,7 @@ npm run type-check   # Run TypeScript checks
 ## MCP Integration Notes
 
 ### Supported MCP Servers
+
 - **Jira**: `@sooperset/mcp-atlassian` or custom implementations
 - **Confluence**: Part of Atlassian MCP server
 - **GitHub**: Community implementations
@@ -71,6 +74,7 @@ npm run type-check   # Run TypeScript checks
 - **Bitbucket**: `@aashari/mcp-server-atlassian-bitbucket`
 
 ### MCP Client Implementation
+
 - Located in `/src/lib/mcp/client.ts`
 - Uses official `@modelcontextprotocol/sdk` with SSE transport
 - Handles authentication and connection management
@@ -78,7 +82,9 @@ npm run type-check   # Run TypeScript checks
 - Implements resource listing and searching capabilities
 
 ### Configuration Format
+
 MCP servers are configured via JSON in the settings modal:
+
 ```json
 {
   "name": "Server Name",
@@ -95,6 +101,7 @@ MCP servers are configured via JSON in the settings modal:
 ## Development Guidelines
 
 ### Code Style
+
 - Use TypeScript for all new files
 - Follow existing component patterns in `/src/components/`
 - Use Tailwind CSS for styling
@@ -103,6 +110,7 @@ MCP servers are configured via JSON in the settings modal:
 - Add E2E tests for user workflows
 
 ### Security Considerations
+
 - Never log or expose authentication tokens
 - Validate all MCP server configurations
 - Sanitize search queries and results
@@ -110,6 +118,7 @@ MCP servers are configured via JSON in the settings modal:
 - Use environment variables for sensitive data
 
 ### Testing Strategy
+
 - **Unit Tests**: Core logic, utilities, MCP client
 - **Integration Tests**: API routes, database operations
 - **E2E Tests**: Search workflows, settings configuration
@@ -118,6 +127,7 @@ MCP servers are configured via JSON in the settings modal:
 ## Deployment Notes
 
 ### Environment Variables
+
 ```env
 DATABASE_URL="postgresql://..."
 JWT_SECRET="..."
@@ -126,6 +136,7 @@ NEXTAUTH_URL="https://..."
 ```
 
 ### Docker Support
+
 - Dockerfile for containerized deployment
 - Docker Compose for local development with MCP servers
 - Health checks for MCP server connectivity
@@ -141,15 +152,17 @@ NEXTAUTH_URL="https://..."
 ## Git Workflow and Commit Standards
 
 ### Commit Guidelines
+
 - **Use conventional commits**: `type(scope): description`
 - **Make atomic commits**: Each commit should represent one logical change
-- **ALWAYS use `git add -p`** to stage specific lines/hunks - NEVER add entire files at once unless absolutely necessary (e.g., new file creation)
+- **Use `git add -p`** to stage specific lines/hunks - add entire files at once unless absolutely necessary (e.g., new file creation)
 - **Stage changes in logical patches**: Group related changes together, separate unrelated changes
 - **Never add AI assistants as co-authors** in commit messages
 - **Write clear, descriptive commit messages** explaining the "why" not just the "what"
 - **Review each hunk carefully** before staging to ensure it belongs in the current commit
 
 ### Commit Types
+
 - `feat`: New features
 - `fix`: Bug fixes
 - `docs`: Documentation updates
@@ -159,6 +172,7 @@ NEXTAUTH_URL="https://..."
 - `chore`: Build process, dependencies, tooling
 
 ### Examples
+
 ```bash
 git add -p src/components/search/
 git commit -m "feat(search): add real-time search with result ranking"
