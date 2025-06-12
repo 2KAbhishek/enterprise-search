@@ -22,6 +22,28 @@ export interface HealthResponse {
   environment: string;
 }
 
+export interface MCPTool {
+  name: string;
+  description: string;
+}
+
+export interface MCPServer {
+  name: string;
+  status: 'connected' | 'disconnected';
+  toolCount: number;
+  tools: MCPTool[];
+  error: string | null;
+}
+
+export interface ServersResponse {
+  success: boolean;
+  servers: MCPServer[];
+  totalServers: number;
+  connectedCount: number;
+  totalTools: number;
+  error?: string;
+}
+
 export class ApiClient {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${API_URL}${endpoint}`;
@@ -55,6 +77,10 @@ export class ApiClient {
 
   async checkHealth(): Promise<HealthResponse> {
     return this.request<HealthResponse>('/api/health');
+  }
+
+  async getServers(): Promise<ServersResponse> {
+    return this.request<ServersResponse>('/api/chat/servers');
   }
 }
 

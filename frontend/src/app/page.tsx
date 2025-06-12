@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Header } from '@/components/layout/Header';
 import { ChatInterface } from '@/components/chat/ChatInterface';
-import { SettingsModal } from '@/components/settings/SettingsModal';
+import { ServersModal } from '@/components/settings/ServersModal';
 import { apiClient } from '@/lib/api';
 
 export default function Home() {
@@ -97,11 +97,9 @@ export default function Home() {
         </div>
       </main>
 
-      <SettingsModal
+      <ServersModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-        servers={[]}
-        onSave={() => {}}
       />
     </div>
   );
