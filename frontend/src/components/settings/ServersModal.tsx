@@ -245,35 +245,49 @@ export function ServersModal({ isOpen, onClose }: ServersModalProps) {
                             View available tools ({server.tools.length})
                           </summary>
                           <div style={{
-                            display: 'grid',
-                            gap: '0.25rem',
-                            paddingLeft: '1rem'
+                            maxHeight: '12rem',
+                            overflow: 'auto',
+                            paddingLeft: '1rem',
+                            paddingRight: '0.5rem',
+                            border: `1px solid ${colors.border}`,
+                            borderRadius: '4px',
+                            backgroundColor: colors.muted,
+                            padding: '0.5rem'
                           }}>
-                            {server.tools.slice(0, 5).map((tool) => (
-                              <div key={tool.name} style={{
-                                fontSize: '0.75rem',
-                                color: colors.mutedForeground
-                              }}>
-                                <code style={{
-                                  color: colors.foreground,
-                                  fontWeight: '500'
+                            <div style={{
+                              display: 'grid',
+                              gap: '0.5rem'
+                            }}>
+                              {server.tools.map((tool) => (
+                                <div key={tool.name} style={{
+                                  fontSize: '0.75rem',
+                                  color: colors.mutedForeground,
+                                  padding: '0.25rem',
+                                  backgroundColor: colors.card,
+                                  borderRadius: '4px',
+                                  border: `1px solid ${colors.border}`
                                 }}>
-                                  {tool.name}
-                                </code>
-                                {tool.description && (
-                                  <span> - {tool.description}</span>
-                                )}
-                              </div>
-                            ))}
-                            {server.tools.length > 5 && (
-                              <div style={{
-                                fontSize: '0.75rem',
-                                color: colors.mutedForeground,
-                                fontStyle: 'italic'
-                              }}>
-                                ... and {server.tools.length - 5} more tools
-                              </div>
-                            )}
+                                  <div style={{
+                                    color: colors.foreground,
+                                    fontWeight: '500',
+                                    fontFamily: 'monospace',
+                                    fontSize: '0.75rem',
+                                    marginBottom: '0.125rem'
+                                  }}>
+                                    {tool.name}
+                                  </div>
+                                  {tool.description && (
+                                    <div style={{
+                                      fontSize: '0.6875rem',
+                                      lineHeight: '1.2',
+                                      color: colors.mutedForeground
+                                    }}>
+                                      {tool.description}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </details>
                       )}

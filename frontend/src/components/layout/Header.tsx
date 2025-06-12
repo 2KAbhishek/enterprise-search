@@ -6,10 +6,10 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface HeaderProps {
-  onSettingsClick: () => void;
+  onServersClick: () => void;
 }
 
-export function Header({ onSettingsClick }: HeaderProps) {
+export function Header({ onServersClick }: HeaderProps) {
   const { colors } = useTheme();
   
   const headerStyle = {
@@ -56,7 +56,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
           <div className="flex items-center space-x-2">
             <ThemeToggle />
             <button
-              onClick={onSettingsClick}
+              onClick={onServersClick}
               style={buttonStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.muted;
@@ -64,7 +64,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = colors.secondary;
               }}
-              title="Settings"
+              title="MCP Servers"
             >
               <GearIcon className="h-5 w-5" />
             </button>
