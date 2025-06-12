@@ -19,6 +19,7 @@ export class ChatService {
     
     try {
       await this.mcpService.connectToServers();
+      this.claudeService.setMCPService(this.mcpService);
       this.isInitialized = true;
       console.log('✅ ChatService initialized successfully');
     } catch (error) {
@@ -33,13 +34,7 @@ export class ChatService {
       const connectedServers = this.mcpService.getConnectedServers();
       console.log(`Processing message with ${connectedServers.length} MCP servers connected`);
 
-      let mcpContext = '';
-      
-      if (connectedServers.length > 0) {
-        mcpContext = await this.mcpService.queryAllServers(message);
-      }
-
-      const response = await this.claudeService.sendMessage(message, mcpContext);
+      const response = await this.claudeService.sendMessage(message);
       
       return response;
     } catch (error) {

@@ -83,6 +83,9 @@ export class MCPService {
 
       await client.connect(transport);
       
+      // Wait a moment for the server to be fully ready
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       this.clients.set(config.name, client);
       this.transports.set(config.name, transport);
       
@@ -102,28 +105,75 @@ export class MCPService {
 
     for (const [serverName, client] of this.clients) {
       try {
-        const resources = await client.listResources();
-        
-        const relevantResources = resources.resources.filter(resource =>
-          resource.name.toLowerCase().includes(query.toLowerCase()) ||
-          (resource.description && resource.description.toLowerCase().includes(query.toLowerCase()))
-        );
+        // First, check what capabilities this server has
+        const capabilities = await this.getServerCapabilities(client, serverName);
+        results.push(`\n**${serverName} Capabilities:**`);
+        results.push(capabilities);
 
-        if (relevantResources.length > 0) {
-          results.push(`\n**${serverName}:**`);
-          relevantResources.forEach(resource => {
-            results.push(`- ${resource.name}: ${resource.description || 'No description'}`);
-          });
+        // For GitHub server, try to get tools (skip resources as they're not supported)
+        if (serverName.toLowerCase().includes('github')) {
+          try {
+            const tools = await client.listTools();
+            if (tools.tools && tools.tools.length > 0) {
+              results.push(`\n**${serverName} Available Tools:**`);
+              tools.tools.slice(0, 10).forEach(tool => {
+                results.push(`- ${tool.name}: ${tool.description || 'No description'}`);
+              });
+            }
+          } catch (toolError) {
+            console.warn(`${serverName} tools not available:`, toolError);
+            results.push(`\n**${serverName}:** Tools not available - ${toolError instanceof Error ? toolError.message : 'Unknown error'}`);
+          }
+        } else {
+          // For other servers, try both resources and tools
+          try {
+            const resources = await client.listResources();
+            if (resources.resources && resources.resources.length > 0) {
+              results.push(`\n**${serverName} Resources:**`);
+              resources.resources.slice(0, 5).forEach(resource => {
+                results.push(`- ${resource.name}: ${resource.description || 'No description'}`);
+              });
+            }
+          } catch (resourceError) {
+            console.warn(`${serverName} resources not available:`, resourceError);
+          }
+
+          try {
+            const tools = await client.listTools();
+            if (tools.tools && tools.tools.length > 0) {
+              results.push(`\n**${serverName} Available Tools:**`);
+              tools.tools.slice(0, 5).forEach(tool => {
+                results.push(`- ${tool.name}: ${tool.description || 'No description'}`);
+              });
+            }
+          } catch (toolError) {
+            console.warn(`${serverName} tools not available:`, toolError);
+          }
         }
+
       } catch (error) {
         console.error(`Error querying ${serverName}:`, error);
-        results.push(`\n**${serverName}:** Error retrieving data`);
+        results.push(`\n**${serverName}:** Error retrieving data - ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
     return results.length > 0 
       ? results.join('\n')
       : 'No relevant information found in connected MCP servers.';
+  }
+
+  private async getServerCapabilities(client: Client, serverName: string): Promise<string> {
+    try {
+      // For GitHub MCP server, we know it supports tools but not resources/prompts
+      // Let's just return the expected capabilities for now
+      if (serverName.toLowerCase().includes('github')) {
+        return 'Tools (GitHub API integration)';
+      }
+      
+      return 'MCP Server Connected';
+    } catch (error) {
+      return `Error checking capabilities: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -150,5 +200,42 @@ export class MCPService {
 
   getConnectedServers(): string[] {
     return Array.from(this.clients.keys());
+  }
+
+  async callTool(serverName: string, toolName: string, args: any): Promise<any> {
+    const client = this.clients.get(serverName);
+    if (!client) {
+      throw new Error(`MCP server '${serverName}' not connected`);
+    }
+
+    try {
+      const result = await client.callTool({ name: toolName, arguments: args });
+      return result;
+    } catch (error) {
+      console.error(`Error calling tool ${toolName} on ${serverName}:`, error);
+      throw error;
+    }
+  }
+
+  async getAvailableTools(serverName?: string): Promise<any> {
+    if (serverName) {
+      const client = this.clients.get(serverName);
+      if (!client) {
+        throw new Error(`MCP server '${serverName}' not connected`);
+      }
+      return await client.listTools();
+    }
+
+    const allTools: any = {};
+    for (const [name, client] of this.clients) {
+      try {
+        const tools = await client.listTools();
+        allTools[name] = tools;
+      } catch (error) {
+        console.warn(`Could not get tools for ${name}:`, error);
+        allTools[name] = { error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+    }
+    return allTools;
   }
 }
