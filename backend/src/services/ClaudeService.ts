@@ -69,7 +69,6 @@ export class ClaudeService {
         } else if (block.type === 'tool_use' && this.mcpService) {
           hasToolCalls = true;
           try {
-            // Find which server this tool belongs to using our mapping
             const serverName = this.toolToServerMap.get(block.name);
             if (!serverName) {
               throw new Error(`Tool ${block.name} not found in any connected MCP server`);
@@ -120,7 +119,6 @@ export class ClaudeService {
         const followUpText = followUpResponse.content.find(block => block.type === 'text');
         finalResponse = followUpText?.text || '';
         
-        // Update conversation history with final response
         this.conversationHistory.push({ 
           role: 'assistant', 
           content: response.content.map(block => 
@@ -153,7 +151,6 @@ export class ClaudeService {
       const allToolsData = await this.mcpService.getAvailableTools();
       const tools: any[] = [];
 
-      // Clear the mapping
       this.toolToServerMap.clear();
 
       for (const [serverName, serverTools] of Object.entries(allToolsData)) {
@@ -161,7 +158,6 @@ export class ClaudeService {
           const serverToolsList = (serverTools as any).tools;
           if (Array.isArray(serverToolsList)) {
             serverToolsList.forEach((tool: any) => {
-              // Store the mapping separately
               this.toolToServerMap.set(tool.name, serverName);
               
               tools.push({

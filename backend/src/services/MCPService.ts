@@ -83,9 +83,6 @@ export class MCPService {
 
       await client.connect(transport);
       
-      // Wait a moment for the server to be fully ready
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       this.clients.set(config.name, client);
       this.transports.set(config.name, transport);
       
