@@ -9,6 +9,7 @@ Enterprise Search is an intelligent enterprise assistant MVP that enables users 
 ## Architecture Overview
 
 ### Simple MVP Design
+
 ```
 Frontend (Chat UI) → Backend API → Claude LLM + External MCP Servers
 ```
@@ -44,6 +45,7 @@ enterprise-search/
 ## Tech Stack
 
 **MVP Focus:**
+
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Radix UI
 - **Backend**: Express.js, TypeScript, minimal API
 - **MCP Integration**: Official @modelcontextprotocol/sdk with stdio transport
@@ -55,6 +57,7 @@ enterprise-search/
 ## Development Commands
 
 ### Backend
+
 ```bash
 cd backend
 npm run dev          # Start development server with nodemon
@@ -65,7 +68,8 @@ npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript checks
 ```
 
-### Frontend  
+### Frontend
+
 ```bash
 cd frontend
 npm run dev          # Start Next.js development server
@@ -101,7 +105,7 @@ MCP servers are configured in `mcp-servers.json` and run independently:
     {
       "name": "GitHub",
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-github"], 
+      "args": ["@modelcontextprotocol/server-github"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "token"
       }
@@ -115,7 +119,7 @@ MCP servers are configured in `mcp-servers.json` and run independently:
 #### Supported MCP Servers
 
 - **GitHub**: `@modelcontextprotocol/server-github` or `ghcr.io/github/github-mcp-server`
-- **Jira**: `@sooperset/mcp-atlassian` 
+- **Jira**: `@sooperset/mcp-atlassian`
 - **Confluence**: Part of Atlassian MCP server
 - **Slack**: Custom MCP server implementations
 - **Bitbucket**: `@aashari/mcp-server-atlassian-bitbucket`
@@ -173,6 +177,7 @@ interface MCPServerConfig {
 ## MVP Development Focus
 
 ### What's Included
+
 - Simple chat interface
 - Claude LLM integration
 - External MCP server communication
@@ -180,6 +185,7 @@ interface MCPServerConfig {
 - Unit and integration tests
 
 ### What's NOT Included (Future)
+
 - User authentication
 - Database storage
 - Advanced security
@@ -217,16 +223,3 @@ interface MCPServerConfig {
 - `refactor`: Code refactoring without behavior changes
 - `test`: Adding or updating tests
 - `chore`: Build process, dependencies, tooling
-
-### Examples
-
-```bash
-git add -p src/components/search/
-git commit -m "feat(search): add real-time search with result ranking"
-
-git add -p src/lib/mcp/client.ts
-git commit -m "feat(mcp): integrate official SDK with SSE transport"
-
-git add -p tests/
-git commit -m "test(mcp): add unit tests for client connection handling"
-```
