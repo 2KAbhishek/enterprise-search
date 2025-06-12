@@ -110,45 +110,30 @@ export class MCPService {
         results.push(`\n**${serverName} Capabilities:**`);
         results.push(capabilities);
 
-        // For GitHub server, try to get tools (skip resources as they're not supported)
-        if (serverName.toLowerCase().includes('github')) {
-          try {
-            const tools = await client.listTools();
-            if (tools.tools && tools.tools.length > 0) {
-              results.push(`\n**${serverName} Available Tools:**`);
-              tools.tools.slice(0, 10).forEach(tool => {
-                results.push(`- ${tool.name}: ${tool.description || 'No description'}`);
-              });
-            }
-          } catch (toolError) {
-            console.warn(`${serverName} tools not available:`, toolError);
-            results.push(`\n**${serverName}:** Tools not available - ${toolError instanceof Error ? toolError.message : 'Unknown error'}`);
+        // Try to get tools for all servers
+        try {
+          const tools = await client.listTools();
+          if (tools.tools && tools.tools.length > 0) {
+            results.push(`\n**${serverName} Available Tools:**`);
+            tools.tools.slice(0, 10).forEach(tool => {
+              results.push(`- ${tool.name}: ${tool.description || 'No description'}`);
+            });
           }
-        } else {
-          // For other servers, try both resources and tools
-          try {
-            const resources = await client.listResources();
-            if (resources.resources && resources.resources.length > 0) {
-              results.push(`\n**${serverName} Resources:**`);
-              resources.resources.slice(0, 5).forEach(resource => {
-                results.push(`- ${resource.name}: ${resource.description || 'No description'}`);
-              });
-            }
-          } catch (resourceError) {
-            console.warn(`${serverName} resources not available:`, resourceError);
-          }
+        } catch (toolError) {
+          console.warn(`${serverName} tools not available:`, toolError);
+        }
 
-          try {
-            const tools = await client.listTools();
-            if (tools.tools && tools.tools.length > 0) {
-              results.push(`\n**${serverName} Available Tools:**`);
-              tools.tools.slice(0, 5).forEach(tool => {
-                results.push(`- ${tool.name}: ${tool.description || 'No description'}`);
-              });
-            }
-          } catch (toolError) {
-            console.warn(`${serverName} tools not available:`, toolError);
+        // Try to get resources for all servers (some may not support this)
+        try {
+          const resources = await client.listResources();
+          if (resources.resources && resources.resources.length > 0) {
+            results.push(`\n**${serverName} Resources:**`);
+            resources.resources.slice(0, 5).forEach(resource => {
+              results.push(`- ${resource.name}: ${resource.description || 'No description'}`);
+            });
           }
+        } catch (resourceError) {
+          console.warn(`${serverName} resources not available:`, resourceError);
         }
 
       } catch (error) {
@@ -163,14 +148,34 @@ export class MCPService {
   }
 
   private async getServerCapabilities(client: Client, serverName: string): Promise<string> {
+    const capabilities: string[] = [];
+    
     try {
-      // For GitHub MCP server, we know it supports tools but not resources/prompts
-      // Let's just return the expected capabilities for now
-      if (serverName.toLowerCase().includes('github')) {
-        return 'Tools (GitHub API integration)';
+      // Check for tools capability
+      try {
+        await client.listTools();
+        capabilities.push('Tools');
+      } catch {
+        // Tools not supported
       }
-      
-      return 'MCP Server Connected';
+
+      // Check for resources capability
+      try {
+        await client.listResources();
+        capabilities.push('Resources');
+      } catch {
+        // Resources not supported
+      }
+
+      // Check for prompts capability
+      try {
+        await client.listPrompts();
+        capabilities.push('Prompts');
+      } catch {
+        // Prompts not supported
+      }
+
+      return capabilities.length > 0 ? capabilities.join(', ') : 'Connected (capabilities unknown)';
     } catch (error) {
       return `Error checking capabilities: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }

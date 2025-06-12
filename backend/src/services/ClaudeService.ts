@@ -10,6 +10,7 @@ export class ClaudeService {
   private client: Anthropic;
   private mcpService?: MCPService;
   private conversationHistory: Message[] = [];
+  private toolToServerMap: Map<string, string> = new Map();
 
   constructor() {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -68,7 +69,13 @@ export class ClaudeService {
         } else if (block.type === 'tool_use' && this.mcpService) {
           hasToolCalls = true;
           try {
-            const toolResult = await this.mcpService.callTool('GitHub', block.name, block.input);
+            // Find which server this tool belongs to using our mapping
+            const serverName = this.toolToServerMap.get(block.name);
+            if (!serverName) {
+              throw new Error(`Tool ${block.name} not found in any connected MCP server`);
+            }
+            
+            const toolResult = await this.mcpService.callTool(serverName, block.name, block.input);
             toolResults.push({
               type: 'tool_result',
               tool_use_id: block.id,
@@ -143,23 +150,39 @@ export class ClaudeService {
     }
 
     try {
-      const toolsData = await this.mcpService.getAvailableTools('GitHub');
-      if (toolsData.tools) {
-        return toolsData.tools.map((tool: any) => ({
-          name: tool.name,
-          description: tool.description,
-          input_schema: tool.inputSchema || {
-            type: 'object',
-            properties: {},
-            required: []
+      const allToolsData = await this.mcpService.getAvailableTools();
+      const tools: any[] = [];
+
+      // Clear the mapping
+      this.toolToServerMap.clear();
+
+      for (const [serverName, serverTools] of Object.entries(allToolsData)) {
+        if (serverTools && typeof serverTools === 'object' && 'tools' in serverTools) {
+          const serverToolsList = (serverTools as any).tools;
+          if (Array.isArray(serverToolsList)) {
+            serverToolsList.forEach((tool: any) => {
+              // Store the mapping separately
+              this.toolToServerMap.set(tool.name, serverName);
+              
+              tools.push({
+                name: tool.name,
+                description: `[${serverName}] ${tool.description || 'No description'}`,
+                input_schema: tool.inputSchema || {
+                  type: 'object',
+                  properties: {},
+                  required: []
+                }
+              });
+            });
           }
-        }));
+        }
       }
+
+      return tools;
     } catch (error) {
       console.warn('Could not get MCP tools:', error);
+      return [];
     }
-
-    return [];
   }
 
   private async buildSystemPrompt(context?: string): Promise<string> {
@@ -173,7 +196,9 @@ Guidelines:
 - If you don't have enough information, ask clarifying questions or use tools to get more data
 - Format responses clearly with proper structure when appropriate
 - Be professional but friendly in tone
-- When users ask about repositories, files, or other GitHub data, use the GitHub tools to get current information`;
+- When users ask about repositories, files, or GitHub data, use the GitHub tools
+- When users ask about issues, tickets, or project management, use the Jira/Atlassian tools
+- Choose the appropriate tool based on the type of information requested`;
 
     if (context) {
       prompt += `\n\nContext from enterprise systems:\n${context}`;
