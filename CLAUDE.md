@@ -208,6 +208,24 @@ interface MCPServerConfig {
 - Advanced error handling
 - Docker deployment
 
+## CI/CD Pipeline
+
+### GitHub Actions Workflows
+
+- **Frontend CI** (`frontend-ci.yml`): Tests, linting, type checking, and builds for frontend
+- **Backend CI** (`backend-ci.yml`): Tests, linting, type checking, and builds for backend  
+- **Full CI** (`full-ci.yml`): Complete pipeline with integration tests and security scanning
+- **Cross-Platform** (`cross-platform.yml`): Testing across Windows, macOS, and Linux
+- **CodeQL** (`codeql.yml`): Security analysis and vulnerability scanning
+- **Release** (`release.yml`): Automated releases with build artifacts
+
+### Automated Processes
+
+- **Dependabot**: Weekly dependency updates for frontend, backend, and GitHub Actions
+- **Code Coverage**: Uploaded to Codecov for both frontend and backend
+- **Security Scanning**: CodeQL analysis and npm audit for vulnerabilities
+- **Multi-OS Testing**: Ensures compatibility across different operating systems
+
 ## Contributing
 
 1. Always run `npm run lint`, `npm run type-check`, and `npm test` before committing
@@ -217,6 +235,8 @@ interface MCPServerConfig {
 5. Follow the existing code patterns and architecture
 6. Test MCP server integrations thoroughly
 7. Keep tests focused on user-facing functionality rather than implementation details
+8. **CI/CD Requirements**: All PR checks must pass before merging
+9. **Test Coverage**: Maintain high test coverage (current: 83 frontend tests, 100% pass rate)
 
 ## Git Workflow and Commit Standards
 
