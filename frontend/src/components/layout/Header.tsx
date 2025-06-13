@@ -13,9 +13,11 @@ export function Header({ onServersClick }: HeaderProps) {
   const { colors } = useTheme();
   
   const headerStyle = {
-    backgroundColor: colors.card,
+    background: colors.card,
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
     borderBottom: `1px solid ${colors.border}`,
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
   const titleStyle = {
@@ -29,12 +31,14 @@ export function Header({ onServersClick }: HeaderProps) {
 
   const buttonStyle = {
     color: colors.secondaryForeground,
-    backgroundColor: colors.secondary,
-    border: 'none',
+    background: colors.secondary,
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
+    border: `1px solid ${colors.border}`,
     padding: '8px',
-    borderRadius: '6px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
   return (

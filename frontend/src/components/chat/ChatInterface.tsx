@@ -154,7 +154,9 @@ export function ChatInterface() {
         <div style={{
           width: '100%',
           maxWidth: '600px',
-          backgroundColor: colors.card,
+          background: colors.card,
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
           borderRadius: '24px',
           padding: '8px',
           boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1)`,
@@ -203,7 +205,9 @@ export function ChatInterface() {
               🤖 Assistant
             </div>
             <div style={{
-              backgroundColor: colors.card,
+              background: colors.card,
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '18px 18px 18px 4px',
               padding: '14px 18px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
@@ -264,7 +268,9 @@ export function ChatInterface() {
         zIndex: 10,
       }}>
         <div style={{
-          backgroundColor: colors.card,
+          background: colors.card,
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
           borderRadius: '24px',
           padding: '8px',
           boxShadow: `0 4px 20px rgba(0, 0, 0, 0.15)`,

@@ -25,34 +25,34 @@ interface ThemeContextType {
 }
 
 const lightColors = {
-  background: '#ffffff',
+  background: '#f8fafc',
   foreground: '#0f172a',
-  card: '#ffffff',
+  card: 'rgba(255, 255, 255, 0.7)',
   cardForeground: '#0f172a',
   primary: '#2563eb',
-  primaryForeground: '#f8fafc',
-  secondary: '#f1f5f9',
+  primaryForeground: '#ffffff',
+  secondary: 'rgba(241, 245, 249, 0.8)',
   secondaryForeground: '#0f172a',
-  muted: '#f1f5f9',
+  muted: 'rgba(241, 245, 249, 0.6)',
   mutedForeground: '#64748b',
-  border: '#e2e8f0',
-  input: '#ffffff',
+  border: 'rgba(226, 232, 240, 0.8)',
+  input: 'rgba(255, 255, 255, 0.8)',
   ring: '#2563eb',
 };
 
 const darkColors = {
   background: '#000000',
   foreground: '#ffffff',
-  card: '#111111',
+  card: 'rgba(255, 255, 255, 0.1)',
   cardForeground: '#ffffff',
   primary: '#3b82f6',
   primaryForeground: '#ffffff',
-  secondary: '#1a1a1a',
+  secondary: 'rgba(255, 255, 255, 0.05)',
   secondaryForeground: '#ffffff',
-  muted: '#1a1a1a',
+  muted: 'rgba(255, 255, 255, 0.05)',
   mutedForeground: '#a3a3a3',
-  border: '#333333',
-  input: '#111111',
+  border: 'rgba(255, 255, 255, 0.2)',
+  input: 'rgba(255, 255, 255, 0.1)',
   ring: '#3b82f6',
 };
 

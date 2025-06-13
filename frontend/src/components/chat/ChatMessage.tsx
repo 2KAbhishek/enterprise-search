@@ -14,7 +14,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
   
   const messageStyle = {
-    backgroundColor: isUser ? colors.primary : colors.card,
+    background: isUser ? colors.primary : colors.card,
+    backdropFilter: isUser ? 'none' : 'blur(10px)',
+    WebkitBackdropFilter: isUser ? 'none' : 'blur(10px)',
     color: isUser ? colors.primaryForeground : colors.foreground,
     borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
     padding: '14px 18px',
