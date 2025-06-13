@@ -16,12 +16,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const messageStyle = {
     backgroundColor: isUser ? colors.primary : colors.card,
     color: isUser ? colors.primaryForeground : colors.foreground,
-    borderRadius: '12px',
-    padding: '12px 16px',
-    maxWidth: '80%',
+    borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+    padding: '14px 18px',
+    maxWidth: '75%',
     alignSelf: isUser ? 'flex-end' : 'flex-start',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-    border: `1px solid ${colors.border}`,
+    boxShadow: isUser 
+      ? '0 2px 8px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)' 
+      : '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+    border: isUser ? 'none' : `1px solid ${colors.border}`,
+    position: 'relative' as const,
+    wordBreak: 'break-word' as const,
+    lineHeight: '1.5',
+    fontSize: '14px',
   };
 
   const timestampStyle: React.CSSProperties = {
@@ -39,13 +45,38 @@ export function ChatMessage({ message }: ChatMessageProps) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      marginBottom: '24px',
+      alignItems: isUser ? 'flex-end' : 'flex-start'
+    }}>
+      {!isUser && (
+        <div style={{
+          fontSize: '12px',
+          color: colors.mutedForeground,
+          marginBottom: '6px',
+          marginLeft: '4px',
+          fontWeight: '500'
+        }}>
+          🤖 Assistant
+        </div>
+      )}
       <div style={messageStyle}>
-        <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+        <div style={{ 
+          whiteSpace: 'pre-wrap', 
+          wordBreak: 'break-word',
+          margin: 0
+        }}>
           {message.content}
         </div>
       </div>
-      <div style={timestampStyle}>
+      <div style={{
+        ...timestampStyle,
+        marginLeft: isUser ? 0 : '4px',
+        marginRight: isUser ? '4px' : 0,
+        marginTop: '6px'
+      }}>
         {formatTime(message.timestamp)}
       </div>
     </div>

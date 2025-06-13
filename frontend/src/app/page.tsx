@@ -27,30 +27,16 @@ export default function Home() {
         maxWidth: '80rem',
         width: '100%',
         margin: '0 auto',
-        padding: '0 1rem'
+        padding: '0 1rem',
+        paddingBottom: '90px',
+        overflow: 'hidden'
       }}>
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '2rem 0 1rem',
-          borderBottom: `1px solid ${colors.border}`
-        }}>
-          <h2 style={{
-            fontSize: '1.875rem',
-            fontWeight: 'bold',
-            color: colors.foreground,
-            marginBottom: '0.5rem'
-          }}>
-            Enterprise Assistant
-          </h2>
-          <p style={{
-            fontSize: '1rem',
-            color: colors.mutedForeground
-          }}>
-            AI-powered chat interface connected to your enterprise systems
-          </p>
-        </div>
 
-        <div style={{ flex: 1, minHeight: 0 }}>
+        <div style={{ 
+          flex: 1, 
+          minHeight: 0,
+          position: 'relative'
+        }}>
           <ChatInterface />
         </div>
       </main>

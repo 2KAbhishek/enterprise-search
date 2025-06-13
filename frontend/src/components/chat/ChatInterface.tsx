@@ -81,14 +81,17 @@ export function ChatInterface() {
     flexDirection: 'column' as const,
     height: '100%',
     backgroundColor: colors.background,
+    position: 'relative' as const,
   };
 
   const messagesContainerStyle = {
     flex: '1',
     overflowY: 'auto' as const,
     padding: '16px',
+    paddingBottom: '24px',
     display: 'flex',
     flexDirection: 'column' as const,
+    maxHeight: 'calc(100vh - 180px)',
   };
 
   const loadingIndicatorStyle = {
@@ -123,28 +126,102 @@ export function ChatInterface() {
         ))}
         
         {isLoading && (
-          <div style={loadingIndicatorStyle}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'flex-start',
+            marginBottom: '24px',
+          }}>
             <div style={{
-              width: '16px',
-              height: '16px',
-              border: `2px solid ${colors.muted}`,
-              borderTop: `2px solid ${colors.primary}`,
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-            }} />
-            <span>Assistant is thinking...</span>
+              fontSize: '12px',
+              color: colors.mutedForeground,
+              marginBottom: '6px',
+              marginLeft: '4px',
+              fontWeight: '500'
+            }}>
+              🤖 Assistant
+            </div>
+            <div style={{
+              backgroundColor: colors.card,
+              borderRadius: '18px 18px 18px 4px',
+              padding: '14px 18px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: `1px solid ${colors.border}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <div style={{
+                display: 'flex',
+                gap: '4px'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colors.primary,
+                  borderRadius: '50%',
+                  animation: 'bounce 1.4s ease-in-out infinite both',
+                  animationDelay: '0s'
+                }} />
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colors.primary,
+                  borderRadius: '50%',
+                  animation: 'bounce 1.4s ease-in-out infinite both',
+                  animationDelay: '0.16s'
+                }} />
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: colors.primary,
+                  borderRadius: '50%',
+                  animation: 'bounce 1.4s ease-in-out infinite both',
+                  animationDelay: '0.32s'
+                }} />
+              </div>
+              <span style={{
+                color: colors.mutedForeground,
+                fontSize: '14px'
+              }}>Assistant is thinking...</span>
+            </div>
           </div>
         )}
         
         <div ref={messagesEndRef} />
       </div>
 
-      <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+      {/* Sticky Chat Input */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '80rem',
+        padding: '0 1rem',
+        backgroundColor: colors.background,
+        borderTop: `1px solid ${colors.border}`,
+        boxShadow: `0 -4px 6px -1px rgba(0, 0, 0, 0.1)`,
+        zIndex: 10,
+      }}>
+        <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+      </div>
       
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        @keyframes bounce {
+          0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>
