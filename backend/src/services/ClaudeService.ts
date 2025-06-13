@@ -41,6 +41,12 @@ export class ClaudeService {
       const systemPrompt = await this.buildSystemPrompt(context);
       const tools = await this.getMCPTools();
       
+      if (tools.length > 0) {
+        console.log(`📋 Available tools: ${tools.map(t => t.name).join(', ')}`);
+      } else {
+        console.log('⚠️ No MCP tools available');
+      }
+      
       let messages = [...this.conversationHistory];
       let finalResponse = '';
 
@@ -68,6 +74,7 @@ export class ClaudeService {
           finalResponse += block.text;
         } else if (block.type === 'tool_use' && this.mcpService) {
           hasToolCalls = true;
+          console.log(`🔧 Calling tool: ${block.name} with args:`, block.input);
           try {
             const serverName = this.toolToServerMap.get(block.name);
             if (!serverName) {
@@ -75,13 +82,14 @@ export class ClaudeService {
             }
             
             const toolResult = await this.mcpService.callTool(serverName, block.name, block.input);
+            console.log(`✅ Tool ${block.name} executed successfully`);
             toolResults.push({
               type: 'tool_result',
               tool_use_id: block.id,
               content: JSON.stringify(toolResult.content)
             });
           } catch (error) {
-            console.error(`Tool call failed for ${block.name}:`, error);
+            console.error(`❌ Tool call failed for ${block.name}:`, error);
             toolResults.push({
               type: 'tool_result',
               tool_use_id: block.id,
@@ -115,9 +123,14 @@ export class ClaudeService {
 
         const followUpResponse = await this.client.messages.create(followUpParams);
 
-        // Extract the final response text
-        const followUpText = followUpResponse.content.find(block => block.type === 'text');
-        finalResponse = followUpText?.text || '';
+        // Extract the final response text and combine with any additional tool text
+        let followUpText = '';
+        for (const block of followUpResponse.content) {
+          if (block.type === 'text') {
+            followUpText += block.text;
+          }
+        }
+        finalResponse = followUpText;
         
         this.conversationHistory.push({ 
           role: 'assistant', 
@@ -186,15 +199,21 @@ export class ClaudeService {
 
 You have access to enterprise tools through Model Context Protocol (MCP) that can interact with systems like GitHub, Jira, Confluence, Slack, and Bitbucket.
 
+IMPORTANT INSTRUCTIONS:
+- ALWAYS use the available tools when users ask about enterprise data, repositories, issues, or any specific information
+- Do NOT say you will do something without actually calling the appropriate tool
+- When users ask about GitHub repositories, IMMEDIATELY call the appropriate GitHub tools
+- When users ask about issues or tickets, IMMEDIATELY call the appropriate Jira/Atlassian tools
+- Do NOT provide generic responses when specific data is requested - use tools to get real data
+- If you say "Let me check" or "Let me look up", you MUST follow through by calling the appropriate tool
+
 Guidelines:
 - Use the available tools to get real-time information when users ask about enterprise data
-- Provide helpful, accurate, and concise responses
+- Provide helpful, accurate, and concise responses based on actual tool results
 - If you don't have enough information, ask clarifying questions or use tools to get more data
 - Format responses clearly with proper structure when appropriate
 - Be professional but friendly in tone
-- When users ask about repositories, files, or GitHub data, use the GitHub tools
-- When users ask about issues, tickets, or project management, use the Jira/Atlassian tools
-- Choose the appropriate tool based on the type of information requested`;
+- Always follow through on your stated actions with actual tool calls`;
 
     if (context) {
       prompt += `\n\nContext from enterprise systems:\n${context}`;

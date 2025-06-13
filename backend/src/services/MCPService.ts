@@ -18,6 +18,9 @@ export class MCPService {
   private clients: Map<string, Client> = new Map();
   private transports: Map<string, StdioClientTransport> = new Map();
   private config: MCPConfigFile | null = null;
+  private retryAttempts: Map<string, number> = new Map();
+  private readonly maxRetries = 3;
+  private readonly retryDelay = 2000;
 
   constructor() {
     this.loadConfig();
@@ -25,7 +28,7 @@ export class MCPService {
 
   private loadConfig(): void {
     try {
-      const configPath = path.join(process.cwd(), '..', 'mcp-servers.json');
+      const configPath = process.env.MCP_CONFIG_PATH || path.join(process.cwd(), '..', 'mcp-servers.json');
       
       if (!fs.existsSync(configPath)) {
         console.warn('MCP configuration file not found at:', configPath);
@@ -49,10 +52,28 @@ export class MCPService {
     }
 
     for (const serverConfig of this.config.servers) {
-      try {
-        await this.connectToServer(serverConfig);
-      } catch (error) {
-        console.error(`Failed to connect to MCP server ${serverConfig.name}:`, error);
+      await this.connectToServerWithRetry(serverConfig);
+    }
+  }
+
+  private async connectToServerWithRetry(config: MCPServerConfig): Promise<void> {
+    const attemptCount = this.retryAttempts.get(config.name) || 0;
+    
+    try {
+      await this.connectToServer(config);
+      this.retryAttempts.set(config.name, 0);
+    } catch (error) {
+      console.error(`Failed to connect to MCP server ${config.name} (attempt ${attemptCount + 1}):`, error);
+      
+      if (attemptCount < this.maxRetries) {
+        this.retryAttempts.set(config.name, attemptCount + 1);
+        console.log(`Retrying connection to ${config.name} in ${this.retryDelay}ms...`);
+        
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+        return this.connectToServerWithRetry(config);
+      } else {
+        console.error(`Max retry attempts (${this.maxRetries}) reached for ${config.name}. Giving up.`);
+        this.retryAttempts.set(config.name, 0);
       }
     }
   }
