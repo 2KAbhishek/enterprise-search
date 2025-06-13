@@ -84,7 +84,7 @@ jobs:
                   tar -czf enterprise-search-${{ github.ref_name }}.tar.gz release/
 
             - name: Upload release artifacts
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: release-build
                   path: enterprise-search-*.tar.gz
