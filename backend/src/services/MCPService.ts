@@ -114,7 +114,7 @@ export class MCPService {
     }
   }
 
-  async queryAllServers(query: string): Promise<string> {
+  async queryAllServers(_query: string): Promise<string> {
     if (this.clients.size === 0) {
       return 'No MCP servers are currently connected.';
     }
@@ -165,7 +165,7 @@ export class MCPService {
       : 'No relevant information found in connected MCP servers.';
   }
 
-  private async getServerCapabilities(client: Client, serverName: string): Promise<string> {
+  private async getServerCapabilities(client: Client, _serverName: string): Promise<string> {
     const capabilities: string[] = [];
     
     try {

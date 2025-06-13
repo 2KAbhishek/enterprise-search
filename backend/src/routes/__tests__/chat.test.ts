@@ -8,6 +8,11 @@ jest.mock('../../services/ChatService');
 
 const app = express();
 app.use(express.json());
+
+// Mock the chatService getter function
+const mockChatServiceGetter = jest.fn();
+app.locals.chatService = mockChatServiceGetter;
+
 app.use('/api/chat', chatRouter);
 
 describe('Chat Router', () => {
@@ -21,6 +26,7 @@ describe('Chat Router', () => {
       shutdown: jest.fn(),
     } as unknown as jest.Mocked<ChatService>;
 
+    mockChatServiceGetter.mockReturnValue(mockChatService);
     (ChatService as jest.Mock).mockImplementation(() => mockChatService);
   });
 
@@ -132,6 +138,21 @@ describe('Chat Router', () => {
 
       expect(response.body.success).toBe(true);
       expect(mockChatService.sendMessage).toHaveBeenCalledWith(maxMessage);
+    });
+
+    it('should handle missing ChatService', async () => {
+      mockChatServiceGetter.mockReturnValue(null);
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: 'Hello' })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        success: false,
+        error: 'Failed to process chat message',
+        timestamp: expect.any(String),
+      });
     });
   });
 });

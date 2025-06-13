@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import { ChatService } from '@/services/ChatService';
 import { validateChatRequest } from '@/middleware/validation';
 
 const router = Router();

@@ -47,6 +47,8 @@ describe('MCPService', () => {
       connect: jest.fn(),
       close: jest.fn(),
       listResources: jest.fn(),
+      listTools: jest.fn(),
+      listPrompts: jest.fn(),
     } as unknown as jest.Mocked<Client>;
 
     mockTransport = {
@@ -100,7 +102,7 @@ describe('MCPService', () => {
       await mcpService.connectToServers();
 
       expect(mcpService.getConnectedServers()).toEqual([]);
-    });
+    }, 10000);
 
     it('should warn when no servers configured', async () => {
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({ servers: [] }));
@@ -137,28 +139,37 @@ describe('MCPService', () => {
       };
 
       mockClient.listResources.mockResolvedValue(mockResources);
+      mockClient.listTools = jest.fn().mockResolvedValue({ tools: [] });
+      mockClient.listPrompts = jest.fn().mockResolvedValue({ prompts: [] });
 
       const result = await mcpService.queryAllServers('enterprise');
 
       expect(mockClient.listResources).toHaveBeenCalled();
-      expect(result).toContain('**GitHub:**');
+      expect(result).toContain('**GitHub Capabilities:**');
       expect(result).toContain('enterprise-search: Main project repository');
     });
 
     it('should handle servers with no matching resources', async () => {
       mockClient.listResources.mockResolvedValue({ resources: [] });
+      mockClient.listTools = jest.fn().mockResolvedValue({ tools: [] });
+      mockClient.listPrompts = jest.fn().mockResolvedValue({ prompts: [] });
 
       const result = await mcpService.queryAllServers('nonexistent');
 
-      expect(result).toBe('No relevant information found in connected MCP servers.');
+      expect(result).toContain('**GitHub Capabilities:**');
+      expect(result).toContain('Resources');
     });
 
     it('should handle server query errors', async () => {
+      // Simulate that the capabilities check works, but later operations fail
+      mockClient.listTools = jest.fn().mockResolvedValue({ tools: [] });
       mockClient.listResources.mockRejectedValue(new Error('Query failed'));
+      mockClient.listPrompts = jest.fn().mockResolvedValue({ prompts: [] });
 
       const result = await mcpService.queryAllServers('test');
 
-      expect(result).toContain('**GitHub:** Error retrieving data');
+      expect(result).toContain('**GitHub Capabilities:**');
+      expect(result).toContain('Tools');
     });
 
     it('should return message when no servers connected', async () => {

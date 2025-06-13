@@ -47,7 +47,7 @@ export class ClaudeService {
         console.log('⚠️ No MCP tools available');
       }
       
-      let messages = [...this.conversationHistory];
+      const messages = [...this.conversationHistory];
       let finalResponse = '';
 
       // Initial request to Claude
@@ -66,7 +66,7 @@ export class ClaudeService {
       const response = await this.client.messages.create(requestParams);
 
       let hasToolCalls = false;
-      let toolResults: any[] = [];
+      const toolResults: any[] = [];
 
       // Process tool calls if any
       for (const block of response.content) {
