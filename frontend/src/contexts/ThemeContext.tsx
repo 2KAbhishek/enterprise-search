@@ -41,18 +41,18 @@ const lightColors = {
 };
 
 const darkColors = {
-  background: '#0f172a',
-  foreground: '#f8fafc',
-  card: '#1e293b',
-  cardForeground: '#f8fafc',
+  background: '#000000',
+  foreground: '#ffffff',
+  card: '#111111',
+  cardForeground: '#ffffff',
   primary: '#3b82f6',
-  primaryForeground: '#f8fafc',
-  secondary: '#1e293b',
-  secondaryForeground: '#f8fafc',
-  muted: '#1e293b',
-  mutedForeground: '#94a3b8',
-  border: '#334155',
-  input: '#1e293b',
+  primaryForeground: '#ffffff',
+  secondary: '#1a1a1a',
+  secondaryForeground: '#ffffff',
+  muted: '#1a1a1a',
+  mutedForeground: '#a3a3a3',
+  border: '#333333',
+  input: '#111111',
   ring: '#3b82f6',
 };
 
