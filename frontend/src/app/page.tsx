@@ -13,10 +13,12 @@ export default function Home() {
   return (
     <div style={{
       minHeight: '100vh',
+      height: '100vh',
       backgroundColor: colors.background,
       transition: 'all 0.2s ease',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      overscrollBehavior: 'none'
     }}>
       <Header onServersClick={() => setIsServersModalOpen(true)} />
       
@@ -28,7 +30,7 @@ export default function Home() {
         width: '100%',
         margin: '0 auto',
         padding: '0 1rem',
-        paddingBottom: '90px',
+        paddingBottom: '120px',
         overflow: 'hidden'
       }}>
 

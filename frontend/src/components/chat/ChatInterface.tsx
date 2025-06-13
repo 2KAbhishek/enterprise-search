@@ -10,6 +10,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasStartedChatting, setHasStartedChatting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { colors } = useTheme();
 
@@ -21,18 +22,14 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    setMessages([
-      {
-        id: 'welcome',
-        role: 'assistant',
-        content: 'Hello! I\'m your enterprise assistant. I can help you find information from your connected systems like GitHub, Jira, Confluence, and more. What would you like to know?',
-        timestamp: new Date().toISOString(),
-      },
-    ]);
-  }, []);
+  // Remove initial welcome message - we'll show it differently
 
   const handleSendMessage = async (content: string) => {
+    // Transition to chat state on first message
+    if (!hasStartedChatting) {
+      setHasStartedChatting(true);
+    }
+
     const userMessage: ChatMessageType = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -112,6 +109,69 @@ export function ChatInterface() {
     fontSize: '14px',
   };
 
+  if (!hasStartedChatting) {
+    // Initial welcome state - centered layout
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '2rem',
+        backgroundColor: colors.background,
+      }}>
+        {/* Welcome Message */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '3rem',
+          maxWidth: '600px'
+        }}>
+          <div style={{
+            fontSize: '3rem',
+            marginBottom: '1rem'
+          }}>
+            🔍
+          </div>
+          <h2 style={{
+            fontSize: '1.5rem',
+            fontWeight: '600',
+            color: colors.foreground,
+            marginBottom: '0.75rem'
+          }}>
+            Welcome to Enterprise Search
+          </h2>
+          <p style={{
+            fontSize: '1rem',
+            color: colors.mutedForeground,
+            lineHeight: '1.5'
+          }}>
+            I can help you find information from your connected systems like GitHub, Jira, Confluence, and more. What would you like to know?
+          </p>
+        </div>
+
+        {/* Centered Chat Input */}
+        <div style={{
+          width: '100%',
+          maxWidth: '600px',
+          backgroundColor: colors.card,
+          borderRadius: '24px',
+          padding: '8px',
+          boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1)`,
+          border: `1px solid ${colors.border}`,
+        }}>
+          <ChatInput 
+            onSendMessage={handleSendMessage} 
+            disabled={isLoading}
+            placeholder="Ask me about your enterprise data..."
+            centerMode={true}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Regular chat state
   return (
     <div style={containerStyle}>
       {error && (
@@ -194,18 +254,23 @@ export function ChatInterface() {
       {/* Sticky Chat Input */}
       <div style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: '16px',
         left: '50%',
         transform: 'translateX(-50%)',
         width: '100%',
         maxWidth: '80rem',
         padding: '0 1rem',
-        backgroundColor: colors.background,
-        borderTop: `1px solid ${colors.border}`,
-        boxShadow: `0 -4px 6px -1px rgba(0, 0, 0, 0.1)`,
         zIndex: 10,
       }}>
-        <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+        <div style={{
+          backgroundColor: colors.card,
+          borderRadius: '24px',
+          padding: '8px',
+          boxShadow: `0 4px 20px rgba(0, 0, 0, 0.15)`,
+          border: `1px solid ${colors.border}`,
+        }}>
+          <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+        </div>
       </div>
       
       <style jsx>{`
