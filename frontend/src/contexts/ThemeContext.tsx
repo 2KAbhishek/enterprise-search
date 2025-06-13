@@ -106,7 +106,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         backgroundColor: colors.background,
         color: colors.foreground,
         minHeight: '100vh',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         {children}
       </div>

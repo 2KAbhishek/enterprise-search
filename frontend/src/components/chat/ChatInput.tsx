@@ -46,7 +46,7 @@ export function ChatInput({
     minHeight: centerMode ? '52px' : '48px',
     maxHeight: '120px',
     padding: centerMode ? '16px 20px' : '14px 16px',
-    backgroundColor: centerMode ? colors.background : colors.card,
+    backgroundColor: centerMode ? colors.card : colors.card,
     color: colors.foreground,
     border: centerMode ? 'none' : `2px solid ${colors.border}`,
     borderRadius: centerMode ? '20px' : '12px',
@@ -56,8 +56,8 @@ export function ChatInput({
     outline: 'none',
     fontFamily: 'inherit',
     boxShadow: centerMode ? 'none' : `0 2px 4px rgba(0, 0, 0, 0.05)`,
-    transition: 'all 0.2s ease',
-  };
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+  } as React.CSSProperties;
 
   const buttonStyle = {
     padding: centerMode ? '16px' : '14px',
@@ -70,13 +70,29 @@ export function ChatInput({
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: centerMode ? '52px' : '48px',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     boxShadow: disabled || !message.trim() ? 'none' : `0 2px 4px rgba(0, 0, 0, 0.1)`,
   };
 
   return (
-    <div style={containerStyle}>
-      <textarea
+    <>
+      <style jsx>{`
+        textarea::placeholder {
+          color: ${colors.mutedForeground} !important;
+          opacity: 1;
+        }
+        textarea::-webkit-input-placeholder {
+          color: ${colors.mutedForeground} !important;
+        }
+        textarea::-moz-placeholder {
+          color: ${colors.mutedForeground} !important;
+        }
+        textarea:-ms-input-placeholder {
+          color: ${colors.mutedForeground} !important;
+        }
+      `}</style>
+      <div style={containerStyle}>
+        <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -160,6 +176,7 @@ export function ChatInput({
       >
         <PaperPlaneIcon style={{ width: '16px', height: '16px' }} />
       </button>
-    </div>
+      </div>
+    </>
   );
 }

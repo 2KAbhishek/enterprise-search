@@ -15,7 +15,7 @@ export function Header({ onServersClick }: HeaderProps) {
   const headerStyle = {
     backgroundColor: colors.card,
     borderBottom: `1px solid ${colors.border}`,
-    transition: 'all 0.2s ease'
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const titleStyle = {
@@ -34,7 +34,7 @@ export function Header({ onServersClick }: HeaderProps) {
     padding: '8px',
     borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   return (

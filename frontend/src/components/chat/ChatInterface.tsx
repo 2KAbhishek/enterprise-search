@@ -159,6 +159,7 @@ export function ChatInterface() {
           padding: '8px',
           boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1)`,
           border: `1px solid ${colors.border}`,
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         }}>
           <ChatInput 
             onSendMessage={handleSendMessage} 
@@ -268,6 +269,7 @@ export function ChatInterface() {
           padding: '8px',
           boxShadow: `0 4px 20px rgba(0, 0, 0, 0.15)`,
           border: `1px solid ${colors.border}`,
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         }}>
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
         </div>
