@@ -1,0 +1,19 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": true,
+    "bracketSameLine": true,
+    "jsxSingleQuote": true,
+    "trailingComma": "none",
+    "arrowParens": "always",
+    "bracketSpacing": false,
+    "overrides": [
+        {
+            "files": ["*.html", "*.md", "*.json", "*.yaml", "*.yml"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
+}

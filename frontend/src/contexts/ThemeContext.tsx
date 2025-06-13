@@ -1,115 +1,119 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-  colors: {
-    background: string;
-    foreground: string;
-    card: string;
-    cardForeground: string;
-    primary: string;
-    primaryForeground: string;
-    secondary: string;
-    secondaryForeground: string;
-    muted: string;
-    mutedForeground: string;
-    border: string;
-    input: string;
-    ring: string;
-  };
+    theme: Theme;
+    toggleTheme: () => void;
+    colors: {
+        background: string;
+        foreground: string;
+        card: string;
+        cardForeground: string;
+        primary: string;
+        primaryForeground: string;
+        secondary: string;
+        secondaryForeground: string;
+        muted: string;
+        mutedForeground: string;
+        border: string;
+        input: string;
+        ring: string;
+    };
 }
 
 const lightColors = {
-  background: '#f8fafc',
-  foreground: '#0f172a',
-  card: 'rgba(255, 255, 255, 0.7)',
-  cardForeground: '#0f172a',
-  primary: '#2563eb',
-  primaryForeground: '#ffffff',
-  secondary: 'rgba(241, 245, 249, 0.8)',
-  secondaryForeground: '#0f172a',
-  muted: 'rgba(241, 245, 249, 0.6)',
-  mutedForeground: '#64748b',
-  border: 'rgba(226, 232, 240, 0.8)',
-  input: 'rgba(255, 255, 255, 0.8)',
-  ring: '#2563eb',
+    background: '#f8fafc',
+    foreground: '#0f172a',
+    card: 'rgba(255, 255, 255, 0.7)',
+    cardForeground: '#0f172a',
+    primary: '#2563eb',
+    primaryForeground: '#ffffff',
+    secondary: 'rgba(241, 245, 249, 0.8)',
+    secondaryForeground: '#0f172a',
+    muted: 'rgba(241, 245, 249, 0.6)',
+    mutedForeground: '#64748b',
+    border: 'rgba(226, 232, 240, 0.8)',
+    input: 'rgba(255, 255, 255, 0.8)',
+    ring: '#2563eb'
 };
 
 const darkColors = {
-  background: '#000000',
-  foreground: '#ffffff',
-  card: 'rgba(255, 255, 255, 0.1)',
-  cardForeground: '#ffffff',
-  primary: '#3b82f6',
-  primaryForeground: '#ffffff',
-  secondary: 'rgba(255, 255, 255, 0.05)',
-  secondaryForeground: '#ffffff',
-  muted: 'rgba(255, 255, 255, 0.05)',
-  mutedForeground: '#a3a3a3',
-  border: 'rgba(255, 255, 255, 0.2)',
-  input: 'rgba(255, 255, 255, 0.1)',
-  ring: '#3b82f6',
+    background: '#000000',
+    foreground: '#ffffff',
+    card: 'rgba(255, 255, 255, 0.1)',
+    cardForeground: '#ffffff',
+    primary: '#3b82f6',
+    primaryForeground: '#ffffff',
+    secondary: 'rgba(255, 255, 255, 0.05)',
+    secondaryForeground: '#ffffff',
+    muted: 'rgba(255, 255, 255, 0.05)',
+    mutedForeground: '#a3a3a3',
+    border: 'rgba(255, 255, 255, 0.2)',
+    input: 'rgba(255, 255, 255, 0.1)',
+    ring: '#3b82f6'
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
-  toggleTheme: () => {},
-  colors: darkColors
+    theme: 'dark',
+    toggleTheme: () => {},
+    colors: darkColors
 });
 
 export function useTheme() {
-  return useContext(ThemeContext);
+    return useContext(ThemeContext);
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
+export function ThemeProvider({children}: {children: React.ReactNode}) {
+    const [theme, setTheme] = useState<Theme>('dark');
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme') as Theme;
-    if (saved) {
-      setTheme(saved);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+    useEffect(() => {
+        setMounted(true);
+        const saved = localStorage.getItem('theme') as Theme;
+        if (saved) {
+            setTheme(saved);
+        } else {
+            const prefersDark = window.matchMedia(
+                '(prefers-color-scheme: dark)'
+            ).matches;
+            setTheme(prefersDark ? 'dark' : 'light');
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    };
+
+    const colors = theme === 'dark' ? darkColors : lightColors;
+    if (!mounted) {
+        return (
+            <div
+                style={{
+                    backgroundColor: darkColors.background,
+                    color: darkColors.foreground,
+                    minHeight: '100vh'
+                }}>
+                {children}
+            </div>
+        );
     }
-  }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
-
-  const colors = theme === 'dark' ? darkColors : lightColors;
-  if (!mounted) {
     return (
-      <div style={{
-        backgroundColor: darkColors.background,
-        color: darkColors.foreground,
-        minHeight: '100vh'
-      }}>
-        {children}
-      </div>
+        <ThemeContext.Provider value={{theme, toggleTheme, colors}}>
+            <div
+                style={{
+                    backgroundColor: colors.background,
+                    color: colors.foreground,
+                    minHeight: '100vh',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}>
+                {children}
+            </div>
+        </ThemeContext.Provider>
     );
-  }
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, colors }}>
-      <div style={{
-        backgroundColor: colors.background,
-        color: colors.foreground,
-        minHeight: '100vh',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-      }}>
-        {children}
-      </div>
-    </ThemeContext.Provider>
-  );
 }

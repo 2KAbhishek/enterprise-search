@@ -1,87 +1,92 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
 }
 
 export interface ChatResponse {
-  success: boolean;
-  response?: string;
-  error?: string;
-  timestamp: string;
+    success: boolean;
+    response?: string;
+    error?: string;
+    timestamp: string;
 }
 
 export interface HealthResponse {
-  status: string;
-  service: string;
-  version: string;
-  timestamp: string;
-  environment: string;
+    status: string;
+    service: string;
+    version: string;
+    timestamp: string;
+    environment: string;
 }
 
 export interface MCPTool {
-  name: string;
-  description: string;
+    name: string;
+    description: string;
 }
 
 export interface MCPServer {
-  name: string;
-  status: 'connected' | 'disconnected';
-  toolCount: number;
-  tools: MCPTool[];
-  error: string | null;
+    name: string;
+    status: 'connected' | 'disconnected';
+    toolCount: number;
+    tools: MCPTool[];
+    error: string | null;
 }
 
 export interface ServersResponse {
-  success: boolean;
-  servers: MCPServer[];
-  totalServers: number;
-  connectedCount: number;
-  totalTools: number;
-  error?: string;
+    success: boolean;
+    servers: MCPServer[];
+    totalServers: number;
+    connectedCount: number;
+    totalTools: number;
+    error?: string;
 }
 
 export class ApiClient {
-  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${API_URL}${endpoint}`;
-    
-    try {
-      const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options?.headers,
-        },
-        ...options,
-      });
+    private async request<T>(
+        endpoint: string,
+        options?: RequestInit
+    ): Promise<T> {
+        const url = `${API_URL}${endpoint}`;
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options?.headers
+                },
+                ...options
+            });
 
-      return response.json();
-    } catch (error) {
-      console.error(`API request failed: ${endpoint}`, error);
-      throw error;
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP ${response.status}: ${response.statusText}`
+                );
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(`API request failed: ${endpoint}`, error);
+            throw error;
+        }
     }
-  }
 
-  async sendMessage(message: string): Promise<ChatResponse> {
-    return this.request<ChatResponse>('/api/chat', {
-      method: 'POST',
-      body: JSON.stringify({ message }),
-    });
-  }
+    async sendMessage(message: string): Promise<ChatResponse> {
+        return this.request<ChatResponse>('/api/chat', {
+            method: 'POST',
+            body: JSON.stringify({message})
+        });
+    }
 
-  async checkHealth(): Promise<HealthResponse> {
-    return this.request<HealthResponse>('/api/health');
-  }
+    async checkHealth(): Promise<HealthResponse> {
+        return this.request<HealthResponse>('/api/health');
+    }
 
-  async getServers(): Promise<ServersResponse> {
-    return this.request<ServersResponse>('/api/chat/servers');
-  }
+    async getServers(): Promise<ServersResponse> {
+        return this.request<ServersResponse>('/api/chat/servers');
+    }
 }
 
 export const apiClient = new ApiClient();
