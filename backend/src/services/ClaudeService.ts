@@ -41,7 +41,9 @@ export class ClaudeService {
             const systemPrompt = await this.buildSystemPrompt(context);
             const tools = await this.getMCPTools();
 
-            console.log(`🔧 ${tools.length} MCP tools available for this request`);
+            console.log(
+                `🔧 ${tools.length} MCP tools available for this request`
+            );
 
             return await this.performIterativeToolCalling(systemPrompt, tools);
         } catch (error) {
@@ -50,10 +52,13 @@ export class ClaudeService {
         }
     }
 
-    private async performIterativeToolCalling(systemPrompt: string, tools: any[]): Promise<string> {
+    private async performIterativeToolCalling(
+        systemPrompt: string,
+        tools: any[]
+    ): Promise<string> {
         const messages = [...this.conversationHistory];
         let finalResponse = '';
-        let maxIterations = 5; // Prevent infinite loops
+        const maxIterations = 5; // Prevent infinite loops
         let iteration = 0;
 
         while (iteration < maxIterations) {
@@ -86,8 +91,11 @@ export class ClaudeService {
                     hasToolCalls = true;
                     console.log(`\n🔧 === MCP Tool Call ===`);
                     console.log(`Tool: ${block.name}`);
-                    console.log(`Parameters:`, JSON.stringify(block.input, null, 2));
-                    
+                    console.log(
+                        `Parameters:`,
+                        JSON.stringify(block.input, null, 2)
+                    );
+
                     try {
                         const serverName = this.toolToServerMap.get(block.name);
                         if (!serverName) {
@@ -101,18 +109,24 @@ export class ClaudeService {
                             block.name,
                             block.input
                         );
-                        
+
                         // Log detailed tool response
-                        console.log(`📋 Response from ${block.name}:`, JSON.stringify(toolResult.content, null, 2));
+                        console.log(
+                            `📋 Response from ${block.name}:`,
+                            JSON.stringify(toolResult.content, null, 2)
+                        );
                         console.log(`✅ Tool call completed successfully\n`);
-                        
+
                         toolResults.push({
                             type: 'tool_result',
                             tool_use_id: block.id,
                             content: JSON.stringify(toolResult.content)
                         });
                     } catch (error) {
-                        console.error(`❌ Tool call failed for ${block.name}:`, error);
+                        console.error(
+                            `❌ Tool call failed for ${block.name}:`,
+                            error
+                        );
                         console.log(``);
                         toolResults.push({
                             type: 'tool_result',
@@ -138,7 +152,7 @@ export class ClaudeService {
             if (toolResults.length > 0) {
                 // Add assistant's tool use to conversation
                 messages.push({role: 'assistant', content: response.content});
-                
+
                 // Add tool results
                 messages.push({role: 'user', content: toolResults});
 
@@ -147,7 +161,9 @@ export class ClaudeService {
                 console.log(`🔄 Tools executed, preparing for next iteration`);
             } else {
                 // No tool results but had tool calls (all failed)
-                finalResponse = textResponse || 'I encountered errors while trying to access the requested information.';
+                finalResponse =
+                    textResponse ||
+                    'I encountered errors while trying to access the requested information.';
                 this.conversationHistory.push({
                     role: 'assistant',
                     content: finalResponse
@@ -158,7 +174,8 @@ export class ClaudeService {
 
         if (iteration >= maxIterations) {
             console.log(`⚠️ Maximum iterations (${maxIterations}) reached`);
-            finalResponse = 'I was unable to complete your request within the allowed processing time. Please try rephrasing your question.';
+            finalResponse =
+                'I was unable to complete your request within the allowed processing time. Please try rephrasing your question.';
         }
 
         // Update conversation history with final state
@@ -171,18 +188,20 @@ export class ClaudeService {
 
     private summarizeToolResult(content: any): string {
         if (typeof content === 'string') {
-            return content.length > 100 ? content.substring(0, 100) + '...' : content;
+            return content.length > 100
+                ? content.substring(0, 100) + '...'
+                : content;
         }
-        
+
         if (Array.isArray(content)) {
             return `Array with ${content.length} items`;
         }
-        
+
         if (typeof content === 'object' && content !== null) {
             const keys = Object.keys(content);
             return `Object with keys: ${keys.slice(0, 3).join(', ')}${keys.length > 3 ? '...' : ''}`;
         }
-        
+
         return 'Data retrieved';
     }
 
