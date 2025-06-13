@@ -17,6 +17,7 @@ describe('ChatService', () => {
     // Create mock instances
     mockClaudeService = {
       sendMessage: jest.fn(),
+      setMCPService: jest.fn(),
     } as unknown as jest.Mocked<ClaudeService>;
 
     mockMCPService = {
@@ -37,17 +38,13 @@ describe('ChatService', () => {
     it('should process message with MCP context', async () => {
       mockMCPService.connectToServers.mockResolvedValue(undefined);
       mockMCPService.getConnectedServers.mockReturnValue(['GitHub']);
-      mockMCPService.queryAllServers.mockResolvedValue('GitHub: repo1, repo2');
       mockClaudeService.sendMessage.mockResolvedValue('Here are your repositories: repo1, repo2');
 
       const result = await chatService.sendMessage('Show me my repositories');
 
       expect(mockMCPService.connectToServers).toHaveBeenCalled();
-      expect(mockMCPService.queryAllServers).toHaveBeenCalledWith('Show me my repositories');
-      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith(
-        'Show me my repositories',
-        'GitHub: repo1, repo2'
-      );
+      expect(mockClaudeService.setMCPService).toHaveBeenCalledWith(mockMCPService);
+      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith('Show me my repositories');
       expect(result).toBe('Here are your repositories: repo1, repo2');
     });
 
@@ -58,7 +55,7 @@ describe('ChatService', () => {
 
       const result = await chatService.sendMessage('Hello');
 
-      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith('Hello', '');
+      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith('Hello');
       expect(result).toBe('I can help you with that.');
     });
 
@@ -69,7 +66,7 @@ describe('ChatService', () => {
 
       const result = await chatService.sendMessage('Test message');
 
-      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith('Test message', '');
+      expect(mockClaudeService.sendMessage).toHaveBeenCalledWith('Test message');
       expect(result).toBe('Sorry, I had trouble accessing your data.');
     });
 
@@ -107,7 +104,9 @@ describe('ChatService', () => {
     it('should handle shutdown errors gracefully', async () => {
       mockMCPService.disconnect.mockRejectedValue(new Error('Disconnect failed'));
 
-      await expect(chatService.shutdown()).resolves.not.toThrow();
+      await chatService.shutdown();
+      
+      expect(mockMCPService.disconnect).toHaveBeenCalled();
     });
   });
 });

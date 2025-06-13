@@ -44,7 +44,11 @@ export class ChatService {
   }
 
   async shutdown(): Promise<void> {
-    await this.mcpService.disconnect();
+    try {
+      await this.mcpService.disconnect();
+    } catch (error) {
+      console.error('Error during shutdown:', error);
+    }
     console.log('ChatService shutdown complete');
   }
 }
