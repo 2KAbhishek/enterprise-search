@@ -41,16 +41,24 @@ export class ClaudeService {
             const systemPrompt = await this.buildSystemPrompt(context);
             const tools = await this.getMCPTools();
 
-            if (tools.length > 0) {
-                console.log(
-                    `📋 Available tools: ${tools.map((t) => t.name).join(', ')}`
-                );
-            } else {
-                console.log('⚠️ No MCP tools available');
-            }
+            console.log(`🔧 ${tools.length} MCP tools available for this request`);
 
-            const messages = [...this.conversationHistory];
-            let finalResponse = '';
+            return await this.performIterativeToolCalling(systemPrompt, tools);
+        } catch (error) {
+            console.error('Claude API error:', error);
+            throw new Error('Failed to get response from Claude');
+        }
+    }
+
+    private async performIterativeToolCalling(systemPrompt: string, tools: any[]): Promise<string> {
+        const messages = [...this.conversationHistory];
+        let finalResponse = '';
+        let maxIterations = 5; // Prevent infinite loops
+        let iteration = 0;
+
+        while (iteration < maxIterations) {
+            iteration++;
+            console.log(`🔄 Iteration ${iteration}: Processing request`);
 
             const requestParams: any = {
                 model: 'claude-3-5-sonnet-20241022',
@@ -68,16 +76,18 @@ export class ClaudeService {
 
             let hasToolCalls = false;
             const toolResults: any[] = [];
+            let textResponse = '';
 
+            // Process response content
             for (const block of response.content) {
                 if (block.type === 'text') {
-                    finalResponse += block.text;
+                    textResponse += block.text;
                 } else if (block.type === 'tool_use' && this.mcpService) {
                     hasToolCalls = true;
-                    console.log(
-                        `🔧 Calling tool: ${block.name} with args:`,
-                        block.input
-                    );
+                    console.log(`\n🔧 === MCP Tool Call ===`);
+                    console.log(`Tool: ${block.name}`);
+                    console.log(`Parameters:`, JSON.stringify(block.input, null, 2));
+                    
                     try {
                         const serverName = this.toolToServerMap.get(block.name);
                         if (!serverName) {
@@ -91,19 +101,19 @@ export class ClaudeService {
                             block.name,
                             block.input
                         );
-                        console.log(
-                            `✅ Tool ${block.name} executed successfully`
-                        );
+                        
+                        // Log detailed tool response
+                        console.log(`📋 Response from ${block.name}:`, JSON.stringify(toolResult.content, null, 2));
+                        console.log(`✅ Tool call completed successfully\n`);
+                        
                         toolResults.push({
                             type: 'tool_result',
                             tool_use_id: block.id,
                             content: JSON.stringify(toolResult.content)
                         });
                     } catch (error) {
-                        console.error(
-                            `❌ Tool call failed for ${block.name}:`,
-                            error
-                        );
+                        console.error(`❌ Tool call failed for ${block.name}:`, error);
+                        console.log(``);
                         toolResults.push({
                             type: 'tool_result',
                             tool_use_id: block.id,
@@ -114,66 +124,66 @@ export class ClaudeService {
                 }
             }
 
-            if (hasToolCalls && toolResults.length > 0) {
-                messages.push({role: 'assistant', content: response.content});
-
-                messages.push({role: 'user', content: toolResults});
-
-                const followUpParams: any = {
-                    model: 'claude-3-5-sonnet-20241022',
-                    max_tokens: 4000,
-                    temperature: 0.7,
-                    system: systemPrompt,
-                    messages: messages
-                };
-
-                if (tools.length > 0) {
-                    followUpParams.tools = tools;
-                }
-
-                const followUpResponse =
-                    await this.client.messages.create(followUpParams);
-
-                let followUpText = '';
-                for (const block of followUpResponse.content) {
-                    if (block.type === 'text') {
-                        followUpText += block.text;
-                    }
-                }
-                finalResponse = followUpText;
-
-                this.conversationHistory.push({
-                    role: 'assistant',
-                    content: response.content
-                        .map((block) =>
-                            block.type === 'text'
-                                ? block.text
-                                : `[Tool: ${block.type === 'tool_use' ? block.name : 'unknown'}]`
-                        )
-                        .join('\n')
-                });
-                this.conversationHistory.push({
-                    role: 'user',
-                    content: toolResults
-                        .map((r) => `Tool result: ${r.content}`)
-                        .join('\n')
-                });
+            // If no tool calls, this is the final response
+            if (!hasToolCalls) {
+                finalResponse = textResponse;
                 this.conversationHistory.push({
                     role: 'assistant',
                     content: finalResponse
                 });
-            } else {
-                this.conversationHistory.push({
-                    role: 'assistant',
-                    content: finalResponse
-                });
+                break;
             }
 
-            return finalResponse || 'Sorry, I could not generate a response.';
-        } catch (error) {
-            console.error('Claude API error:', error);
-            throw new Error('Failed to get response from Claude');
+            // If tool calls were made, add them to conversation and continue
+            if (toolResults.length > 0) {
+                // Add assistant's tool use to conversation
+                messages.push({role: 'assistant', content: response.content});
+                
+                // Add tool results
+                messages.push({role: 'user', content: toolResults});
+
+                // Check if we should continue iterating
+                // LLM can decide whether to make more tool calls or provide final response
+                console.log(`🔄 Tools executed, preparing for next iteration`);
+            } else {
+                // No tool results but had tool calls (all failed)
+                finalResponse = textResponse || 'I encountered errors while trying to access the requested information.';
+                this.conversationHistory.push({
+                    role: 'assistant',
+                    content: finalResponse
+                });
+                break;
+            }
         }
+
+        if (iteration >= maxIterations) {
+            console.log(`⚠️ Maximum iterations (${maxIterations}) reached`);
+            finalResponse = 'I was unable to complete your request within the allowed processing time. Please try rephrasing your question.';
+        }
+
+        // Update conversation history with final state
+        if (messages.length > this.conversationHistory.length) {
+            this.conversationHistory = messages.slice();
+        }
+
+        return finalResponse || 'Sorry, I could not generate a response.';
+    }
+
+    private summarizeToolResult(content: any): string {
+        if (typeof content === 'string') {
+            return content.length > 100 ? content.substring(0, 100) + '...' : content;
+        }
+        
+        if (Array.isArray(content)) {
+            return `Array with ${content.length} items`;
+        }
+        
+        if (typeof content === 'object' && content !== null) {
+            const keys = Object.keys(content);
+            return `Object with keys: ${keys.slice(0, 3).join(', ')}${keys.length > 3 ? '...' : ''}`;
+        }
+        
+        return 'Data retrieved';
     }
 
     private async getMCPTools(): Promise<any[]> {
@@ -234,10 +244,18 @@ IMPORTANT INSTRUCTIONS:
 - Do NOT provide generic responses when specific data is requested - use tools to get real data
 - If you say "Let me check" or "Let me look up", you MUST follow through by calling the appropriate tool
 
+ITERATIVE TOOL CALLING:
+- You can make MULTIPLE tool calls across several rounds to gather comprehensive information
+- If initial tool results don't provide enough information, make additional tool calls to get more details
+- For complex queries, break them down into multiple tool calls (e.g., first get repositories, then get specific files or issues)
+- Continue calling tools until you have sufficient information to provide a complete answer
+- Each tool call should build upon previous results to create a comprehensive response
+
 Guidelines:
 - Use the available tools to get real-time information when users ask about enterprise data
+- Make multiple tool calls if needed to fully answer the user's question
 - Provide helpful, accurate, and concise responses based on actual tool results
-- If you don't have enough information, ask clarifying questions or use tools to get more data
+- If you don't have enough information after initial tool calls, make additional calls to gather more data
 - Format responses clearly with proper structure when appropriate
 - Be professional but friendly in tone
 - Always follow through on your stated actions with actual tool calls`;
