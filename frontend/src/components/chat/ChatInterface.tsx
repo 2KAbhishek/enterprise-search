@@ -90,7 +90,6 @@ export function ChatInterface() {
         maxHeight: 'calc(100vh - 180px)'
     };
 
-
     const errorStyle = {
         backgroundColor: '#ef4444',
         color: '#ffffff',
