@@ -62,7 +62,9 @@ enterprise-search/
 - **Claude LLM Integration**: Powered by Anthropic Claude for intelligent responses
 - **MCP Server Support**: Works with any MCP server (GitHub, Jira, Confluence, Slack, Bitbucket)
 - **External Configuration**: MCP servers run independently, configured via external JSON
-- **Chat Interface**: Clean, responsive chat UI for conversations
+- **Modern Chat Interface**: Clean, responsive chat UI with glassmorphism design
+- **Theme Support**: Light/dark mode with system preference detection
+- **Comprehensive Testing**: 83 frontend tests with 100% pass rate
 - **Simple Backend**: Minimal Express.js API to connect chat to LLM and MCP servers
 
 ### 🚧 Future Features (Post-MVP)
@@ -179,11 +181,17 @@ cd frontend && npm run build && npm start
 #### Testing
 
 ```bash
-# Backend tests (Jest + Supertest)
-cd backend && npm test
-
-# Frontend tests (Jest + React Testing Library)
+# Frontend tests (Jest + React Testing Library) - 83 tests, 100% pass rate
 cd frontend && npm test
+
+# Run type checking and linting
+cd frontend && npm run type-check && npm run lint
+
+# Format code with Prettier
+cd frontend && npm run format
+
+# Backend tests (Jest + Supertest) - In development
+cd backend && npm test
 
 # Future: End-to-end tests with Cypress (post-MVP)
 ```
@@ -259,14 +267,17 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - [x] Choose tech stack (Next.js + Express.js + Claude)
 - [x] Set up project structure with frontend/backend separation
 - [x] Update documentation with MVP focus
+- [x] Create modern chat interface with glassmorphism design
+- [x] Implement theme switching (light/dark) with system detection
+- [x] Add comprehensive frontend test suite (83 tests, 100% pass rate)
+- [x] Set up Prettier and ESLint configuration for consistent code style
 - [ ] Create basic backend API structure with Express.js
 - [ ] Implement Anthropic Claude LLM service integration
 - [ ] Create MCP client service for external server communication
 - [ ] Build simple chat API endpoint
-- [ ] Update frontend to simple chat interface
 - [ ] Connect frontend chat to backend APIs
 - [ ] Create external MCP server configuration file
-- [ ] Add basic unit tests for core functionality
+- [ ] Add backend unit tests for core functionality
 - [ ] Test with GitHub MCP server integration
 
 ### 🎯 Future Features (Post-MVP)
@@ -295,12 +306,12 @@ enterprise-search was inspired by the need for a unified search experience acros
 
 **MVP Stack:**
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Radix UI
-- **Backend**: Express.js, TypeScript, minimal API
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Radix UI, Glassmorphism design
+- **Backend**: Express.js, TypeScript, minimal API (in development)
 - **MCP Integration**: Official @modelcontextprotocol/sdk with stdio transport
 - **LLM Service**: Anthropic Claude (primary)
-- **Configuration**: External JSON file for MCP servers
-- **Testing**: Jest, React Testing Library, Supertest
+- **Configuration**: prettier.config.js, eslint.config.js, external JSON for MCP servers
+- **Testing**: Jest, React Testing Library, Supertest (83 frontend tests, 100% pass rate)
 - **Development**: ESLint, Prettier, TypeScript strict mode, Nodemon
 
 **Future Enhancements:**

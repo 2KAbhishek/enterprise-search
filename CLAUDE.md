@@ -51,8 +51,9 @@ enterprise-search/
 - **MCP Integration**: Official @modelcontextprotocol/sdk with stdio transport
 - **LLM Service**: Anthropic Claude only
 - **Configuration**: External JSON file for MCP servers
-- **Testing**: Jest, React Testing Library, Supertest
+- **Testing**: Jest, React Testing Library, Supertest (comprehensive test coverage)
 - **Development**: ESLint, Prettier, TypeScript strict mode, Nodemon
+- **Configuration**: prettier.config.js and eslint.config.js for consistent formatting
 
 ## Development Commands
 
@@ -75,9 +76,10 @@ cd frontend
 npm run dev          # Start Next.js development server
 npm run build        # Production build
 npm run start        # Start production server
-npm run test         # Run unit tests
+npm run test         # Run unit tests (Jest + React Testing Library)
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript checks
+npm run format       # Format code with Prettier
 ```
 
 ## MVP Backend API Design
@@ -167,22 +169,34 @@ interface MCPServerConfig {
 - **Input validation**: Basic sanitization of user inputs and LLM responses
 - **No authentication**: MVP runs without user sessions (single user)
 
-### Testing Strategy (MVP)
+### Testing Strategy
 
-- **Unit Tests**: Core logic, utilities, MCP client, Claude service
+#### Frontend Testing (Complete)
+- **Component Tests**: All React components tested (ChatInterface, ChatInput, ChatMessage, Header, ThemeToggle)
+- **Context Tests**: Theme context functionality and state management
+- **Utility Tests**: API client with error handling and network scenarios
+- **Test Infrastructure**: Comprehensive mocking for localStorage, matchMedia, scrollIntoView
+- **Coverage**: 83 tests with 100% pass rate focusing on user-facing functionality
+
+#### Backend Testing (In Progress)
+- **Unit Tests**: Core logic, utilities, MCP client, Claude service  
 - **Integration Tests**: API routes, chat endpoints
 - **Mock Services**: Mock Claude API and MCP servers for testing
-- **Future**: Cypress E2E tests (post-MVP)
+
+#### Future Enhancements
+- **E2E Tests**: Cypress for full user workflows (post-MVP)
+- **Performance Tests**: Load testing for chat endpoints
 
 ## MVP Development Focus
 
 ### What's Included
 
-- Simple chat interface
+- Simple chat interface with glassmorphism design
 - Claude LLM integration
 - External MCP server communication
+- Theme switching (light/dark) with system preference detection
+- Comprehensive frontend test suite
 - Basic error handling
-- Unit and integration tests
 
 ### What's NOT Included (Future)
 
@@ -196,11 +210,13 @@ interface MCPServerConfig {
 
 ## Contributing
 
-1. Always run `npm run lint` and `npm run type-check` before committing
-2. Add tests for new features and bug fixes
-3. Update documentation for API changes
-4. Follow the existing code patterns and architecture
-5. Test MCP server integrations thoroughly
+1. Always run `npm run lint`, `npm run type-check`, and `npm test` before committing
+2. Use `npm run format` to ensure consistent code formatting
+3. Add tests for new features and bug fixes - follow existing test patterns
+4. Update documentation for API changes
+5. Follow the existing code patterns and architecture
+6. Test MCP server integrations thoroughly
+7. Keep tests focused on user-facing functionality rather than implementation details
 
 ## Git Workflow and Commit Standards
 
