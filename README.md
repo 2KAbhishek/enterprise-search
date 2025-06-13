@@ -236,49 +236,28 @@ JIRA_API_TOKEN=your_token JIRA_DOMAIN=company.atlassian.net npx @sooperset/mcp-a
 
 3. **Configure in mcp-servers.json**: Update the configuration file to match your running servers
 
-## Getting Started (Development)
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
 ## 🏗️ What's Next
 
 ### ✅ MVP To-Do
 
 - [x] Research Model Context Protocol (MCP)
-- [x] Design MVP application architecture  
+- [x] Design MVP application architecture
 - [x] Choose tech stack (Next.js + Express.js + Claude)
 - [x] Set up project structure with frontend/backend separation
-- [x] Update documentation with MVP focus
 - [x] Create modern chat interface with glassmorphism design
 - [x] Implement theme switching (light/dark) with system detection
 - [x] Add comprehensive frontend test suite (83 tests, 100% pass rate)
 - [x] Set up Prettier and ESLint configuration for consistent code style
-- [ ] Create basic backend API structure with Express.js
-- [ ] Implement Anthropic Claude LLM service integration
-- [ ] Create MCP client service for external server communication
-- [ ] Build simple chat API endpoint
-- [ ] Connect frontend chat to backend APIs
-- [ ] Create external MCP server configuration file
-- [ ] Add backend unit tests for core functionality
-- [ ] Test with GitHub MCP server integration
+- [x] Add GitHub Actions CI/CD pipeline for frontend and backend
+- [x] Clean up documentation and remove boilerplate content
+- [x] Create basic backend API structure with Express.js
+- [x] Implement Anthropic Claude LLM service integration
+- [x] Create MCP client service for external server communication
+- [x] Build simple chat API endpoint
+- [x] Create external MCP server configuration file
+- [x] Add backend unit tests for core functionality
+- [x] Connect frontend chat to backend APIs
+- [x] Test with GitHub MCP server integration
 
 ### 🎯 Future Features (Post-MVP)
 
@@ -328,21 +307,6 @@ enterprise-search was inspired by the need for a unified search experience acros
 - [Anthropic MCP Guide](https://docs.anthropic.com/en/docs/build-with-claude/mcp) — Implementation guide
 - [MCP GitHub Repository](https://github.com/modelcontextprotocol) — Reference implementations
 - [Atlassian MCP Server](https://github.com/sooperset/mcp-atlassian) — Jira/Confluence integration
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 <hr>
 
