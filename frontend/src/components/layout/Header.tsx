@@ -30,13 +30,11 @@ export function Header({ onServersClick }: HeaderProps) {
   };
 
   const buttonStyle = {
-    color: colors.secondaryForeground,
-    background: colors.secondary,
-    backdropFilter: 'blur(10px)',
-    WebkitBackdropFilter: 'blur(10px)',
-    border: `1px solid ${colors.border}`,
     padding: '8px',
-    borderRadius: '8px',
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+    border: 'none',
+    borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
