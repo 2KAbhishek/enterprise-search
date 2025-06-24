@@ -1,64 +1,52 @@
 version: 2
 updates:
-    # Frontend dependencies
-    - package-ecosystem: 'npm'
-      directory: '/frontend'
-      schedule:
-          interval: 'weekly'
-          day: 'monday'
-          time: '09:00'
-      open-pull-requests-limit: 5
-      reviewers:
-          - '2kabhishek'
-      assignees:
-          - '2kabhishek'
-      commit-message:
-          prefix: 'deps(frontend)'
-          include: 'scope'
-      labels:
-          - 'dependencies'
-          - 'frontend'
-      ignore:
-          - dependency-name: '@types/*'
-            update-types: ['version-update:semver-patch']
+  # Frontend dependencies
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(frontend)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'frontend'
+    ignore:
+      - dependency-name: '@types/*'
+        update-types: ['version-update:semver-patch']
 
-    # Backend dependencies
-    - package-ecosystem: 'npm'
-      directory: '/backend'
-      schedule:
-          interval: 'weekly'
-          day: 'monday'
-          time: '09:00'
-      open-pull-requests-limit: 5
-      reviewers:
-          - '2kabhishek'
-      assignees:
-          - '2kabhishek'
-      commit-message:
-          prefix: 'deps(backend)'
-          include: 'scope'
-      labels:
-          - 'dependencies'
-          - 'backend'
-      ignore:
-          - dependency-name: '@types/*'
-            update-types: ['version-update:semver-patch']
+  # Backend dependencies
+  - package-ecosystem: 'npm'
+    directory: '/backend'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(backend)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'backend'
+    ignore:
+      - dependency-name: '@types/*'
+        update-types: ['version-update:semver-patch']
 
-    # GitHub Actions
-    - package-ecosystem: 'github-actions'
-      directory: '/'
-      schedule:
-          interval: 'weekly'
-          day: 'monday'
-          time: '09:00'
-      open-pull-requests-limit: 3
-      reviewers:
-          - '2kabhishek'
-      assignees:
-          - '2kabhishek'
-      commit-message:
-          prefix: 'deps(actions)'
-          include: 'scope'
-      labels:
-          - 'dependencies'
-          - 'github-actions'
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'deps(actions)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'github-actions'

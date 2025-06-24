@@ -5,120 +5,120 @@ labels: ['enhancement', 'triage']
 assignees: ['2kabhishek']
 
 body:
-    - type: markdown
-      attributes:
-          value: |
-              Thanks for suggesting a new feature! Please fill out the form below with as much detail as possible.
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please fill out the form below with as much detail as possible.
 
-    - type: dropdown
-      id: component
-      attributes:
-          label: Component
-          description: Which part of the application would this feature affect?
-          options:
-              - Frontend (React/Next.js)
-              - Backend (Express.js/API)
-              - MCP Integration
-              - Documentation
-              - CI/CD
-              - Other
-      validations:
-          required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the application would this feature affect?
+      options:
+        - Frontend (React/Next.js)
+        - Backend (Express.js/API)
+        - MCP Integration
+        - Documentation
+        - CI/CD
+        - Other
+    validations:
+      required: true
 
-    - type: dropdown
-      id: type
-      attributes:
-          label: Feature Type
-          description: What type of feature is this?
-          options:
-              - New functionality
-              - Enhancement to existing feature
-              - Performance improvement
-              - User experience improvement
-              - Developer experience improvement
-              - Integration with external service
-              - Other
-      validations:
-          required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New functionality
+        - Enhancement to existing feature
+        - Performance improvement
+        - User experience improvement
+        - Developer experience improvement
+        - Integration with external service
+        - Other
+    validations:
+      required: true
 
-    - type: textarea
-      id: problem
-      attributes:
-          label: Problem Statement
-          description: Is your feature request related to a problem? Please describe.
-          placeholder: I'm frustrated when...
-      validations:
-          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm frustrated when...
+    validations:
+      required: true
 
-    - type: textarea
-      id: solution
-      attributes:
-          label: Proposed Solution
-          description: Describe the solution you'd like to see implemented.
-          placeholder: I would like...
-      validations:
-          required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+      placeholder: I would like...
+    validations:
+      required: true
 
-    - type: textarea
-      id: alternatives
-      attributes:
-          label: Alternative Solutions
-          description: Describe any alternative solutions or features you've considered.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or features you've considered.
 
-    - type: dropdown
-      id: priority
-      attributes:
-          label: Priority
-          description: How important is this feature to you?
-          options:
-              - Low - Nice to have
-              - Medium - Would improve workflow
-              - High - Blocking current work
-              - Critical - Application is unusable without it
-      validations:
-          required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Blocking current work
+        - Critical - Application is unusable without it
+    validations:
+      required: true
 
-    - type: checkboxes
-      id: implementation
-      attributes:
-          label: Implementation Considerations
-          description: Are there any technical considerations for this feature?
-          options:
-              - label: This feature would require breaking changes
-              - label: This feature would require database changes
-              - label: This feature would require new dependencies
-              - label: This feature would affect performance
-              - label: This feature would require documentation updates
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Considerations
+      description: Are there any technical considerations for this feature?
+      options:
+        - label: This feature would require breaking changes
+        - label: This feature would require database changes
+        - label: This feature would require new dependencies
+        - label: This feature would affect performance
+        - label: This feature would require documentation updates
 
-    - type: textarea
-      id: mockups
-      attributes:
-          label: Mockups/Examples
-          description: If applicable, add mockups, wireframes, or examples of similar features.
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, add mockups, wireframes, or examples of similar features.
 
-    - type: textarea
-      id: acceptance
-      attributes:
-          label: Acceptance Criteria
-          description: What conditions must be met for this feature to be considered complete?
-          placeholder: |
-              - [ ] Feature works as described
-              - [ ] Tests are written and passing
-              - [ ] Documentation is updated
-              - [ ] No performance regression
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this feature to be considered complete?
+      placeholder: |
+        - [ ] Feature works as described
+        - [ ] Tests are written and passing
+        - [ ] Documentation is updated
+        - [ ] No performance regression
 
-    - type: checkboxes
-      id: contribution
-      attributes:
-          label: Contribution
-          description: Are you willing to contribute to this feature?
-          options:
-              - label: I would like to work on this feature myself
-              - label: I can help with testing this feature
-              - label: I can help with documentation for this feature
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to contribute to this feature?
+      options:
+        - label: I would like to work on this feature myself
+        - label: I can help with testing this feature
+        - label: I can help with documentation for this feature
 
-    - type: textarea
-      id: additional
-      attributes:
-          label: Additional Context
-          description: Add any other context, screenshots, or examples about the feature request.
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or examples about the feature request.
